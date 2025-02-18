@@ -13,10 +13,10 @@ const userSchema = new Schema(
       required: true,
     },
     phone: { 
-      type: String 
+      type: String
     },
     name: { 
-      type: String 
+      type: String
     },
     email: {
       type: String,
@@ -28,9 +28,13 @@ const userSchema = new Schema(
     },
     role: {
       type: [String],
-      enum: ["customer","staff","manager"],
+      enum: ["customer", "staff", "manager"],
       default: ["customer"],
       required: true,
+    },
+    skinType: {
+      type: Schema.Types.ObjectId,
+      ref: "Skin", // Reference to Skin table
     },
   },
   {
@@ -39,4 +43,4 @@ const userSchema = new Schema(
   }
 );
 
-module.exports = mongoose.model("user", userSchema);
+module.exports = mongoose.model("User", userSchema);

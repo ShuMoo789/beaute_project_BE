@@ -4,6 +4,7 @@ const imgRoute = require("./img.route");
 const quizAnswerRouter = require("./quizAnswer.route");
 const quizQuestionRouter = require("./quizQuestion.route");
 const userRouter = require("./user.route");
+const skinTypeRouter = require("./skinType.route");
 
 const initRoutes = (app) => {
   app.use("/api/user", userRouter);
@@ -12,6 +13,7 @@ const initRoutes = (app) => {
   app.use("/api/uploadImg", imgRoute);
   app.use("/api/quiz-question", quizQuestionRouter);
   app.use("/api/quiz-answer", quizAnswerRouter);
+  app.use("/api/skin-types", skinTypeRouter);
 };
 
 module.exports = initRoutes;
