@@ -23,25 +23,21 @@ const productSchema = new mongoose.Schema({
     required: true,
     default: 0,
   },
-  StaffId: {
+  staffId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: true,
   },
   cartId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Cart",
-    required: true,
   },
   stepRotineId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "StepRoutine",
-    required: true,
   },
-  VoucherId: {
+  voucherId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Voucher",
-    required: true,
   },
 });
 
