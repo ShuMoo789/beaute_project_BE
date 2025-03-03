@@ -8,6 +8,7 @@ module.exports = {
       await product.save();
       return product;
     } catch (error) {
+      console.log(error)
       throw { status: 500, message: "Failed to create product" };
     }
   },
@@ -16,9 +17,9 @@ module.exports = {
   getAll: async () => {
     try {
       return await Product.find()
-        .populate('staffId')
+        .populate('skinTypeId')
         .populate('cartId')
-        .populate('stepRotineId')
+        .populate('stepRoutineId')
         .populate('voucherId');
     } catch (error) {
       throw { status: 500, message: "Failed to retrieve products" };
@@ -29,9 +30,9 @@ module.exports = {
   getById: async (id) => {
     try {
       return await Product.findById(id)
-        .populate('staffId')
+        .populate('skinTypeId')
         .populate('cartId')
-        .populate('stepRotineId')
+        .populate('stepRoutineId')
         .populate('voucherId');
     } catch (error) {
       throw { status: 500, message: "Failed to retrieve product" };
@@ -58,8 +59,6 @@ module.exports = {
       throw { status: 500, message: "Failed to delete product" };
     }
   },
-
-  // Additional useful methods
 
   // Get products by category
   getByCategory: async (category) => {
@@ -91,6 +90,35 @@ module.exports = {
       );
     } catch (error) {
       throw { status: 500, message: "Failed to update product inventory" };
+    }
+  },
+
+  // New methods based on updated model
+
+  // Get products by skin type
+  getBySkinType: async (skinTypeId) => {
+    try {
+      return await Product.find({ skinTypeId });
+    } catch (error) {
+      throw { status: 500, message: "Failed to retrieve products by skin type" };
+    }
+  },
+
+  // Get products by usage time
+  getByUsageTime: async (usageTime) => {
+    try {
+      return await Product.find({ usageTime });
+    } catch (error) {
+      throw { status: 500, message: "Failed to retrieve products by usage time" };
+    }
+  },
+
+  // Get products by origin
+  getByOrigin: async (origin) => {
+    try {
+      return await Product.find({ origin });
+    } catch (error) {
+      throw { status: 500, message: "Failed to retrieve products by origin" };
     }
   }
 };
