@@ -12,16 +12,14 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
-    phone: { 
-      type: String
+    phone: {
+      type: String,
     },
-    name: { 
-      type: String
+    name: {
+      type: String,
     },
     email: {
       type: String,
-      required: true,
-      unique: true,
     },
     avatar: {
       type: String,
@@ -30,7 +28,6 @@ const userSchema = new Schema(
       type: [String],
       enum: ["customer", "staff", "manager"],
       default: ["customer"],
-      required: true,
     },
     skinType: {
       type: Schema.Types.ObjectId,

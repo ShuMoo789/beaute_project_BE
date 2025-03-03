@@ -1,28 +1,86 @@
-const User = require("../models/user.model");
+const User = require("../models/user.model"); // ✅ Chỉ cần 1 biến model
 const bcrypt = require("bcrypt");
-module.exports = {
-  register: (formData) =>
-    new Promise(async (resolve, reject) => {
-      const saltRounds = 10;
 
+module.exports = {
+  login: (formData) => 
+    new Promise(async (resolve, reject) => {
       try {
-        const existUser = await User.findOne({ username: formData.username });
-        if (existUser) {
+        const user = await User.findOne({ username: formData.username });
+        if (!user) {
           return reject({
-            message: "user da ton tai",
+            message: "Cần nhập tài khoản và mật khẩu",
             status: 401,
           });
         }
-        const hashPassword = bcrypt.hashSync(formData.password, saltRounds);
 
-        const newUser = await User.create({
-          ...formData,
-          password: hashPassword,
+        const isMatch = bcrypt.compareSync(formData.password, user.password);
+        if (!isMatch) {
+          return reject({
+            message: "Sai mật khẩu",
+            status: 401,
+          });
+        }
+
+        return resolve({
+          message: "Đăng nhập thành công",
+          data: user,
         });
-        return resolve({ message: "Dang ky thanh cong", data: newUser });
+
       } catch (error) {
         return reject({
-          message: error.response.data.message || "Loi he thong",
+          message: error?.response?.data?.message || "Lỗi hệ thống",
+          status: 500,
+        });
+      }
+    }),
+
+  register: (formData) =>
+    new Promise(async (resolve, reject) => {
+      try {
+        const { username, password, name, phone, email, role } = formData;
+
+        if (!username || !password) {
+          return reject({
+            message: "User và password bắt buộc nhập",
+            ok: false,
+            status: 400,
+          });
+        }
+
+        const existingUser = await User.findOne({ username }); // ✅ Sửa lỗi chính tả
+        if (existingUser) {
+          return reject({
+            message: "User đã tồn tại",
+            ok: false,
+            status: 400,
+          });
+        }
+
+        const hashedPassword = bcrypt.hashSync(password, 10);
+        let userRole = "customer";
+
+        if (role && ["manager", "staff"].includes(role)) {
+          userRole = role;
+        }
+
+        await User.create({  // ✅ Đổi từ userModel thành User
+          name,
+          phone,
+          username,
+          email,
+          password: hashedPassword,
+          role: userRole,
+        });
+
+        return resolve({
+          status: 201,
+          ok: true,
+          message: `Đăng ký ${userRole} thành công`,
+        });
+
+      } catch (error) {
+        return reject({
+          message: error?.message || "Lỗi hệ thống",
           status: 500,
         });
       }
