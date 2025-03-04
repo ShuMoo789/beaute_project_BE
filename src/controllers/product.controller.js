@@ -28,7 +28,8 @@ module.exports = {
     // Get all products
     getAll: async (req, res) => {
         try {
-            const data = await productServices.getAll();
+            const { page, pageSize } = req.params
+            const data = await productServices.getAll(page, pageSize);
             return res.json(data);
         } catch (error) {
             return res.status(error.status || 500).json({ message: error.message });

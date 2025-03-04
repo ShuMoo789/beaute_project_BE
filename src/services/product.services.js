@@ -14,17 +14,39 @@ module.exports = {
   },
 
   // Get all products
-  getAll: async () => {
+  getAll: async (page = 1, pageSize = 10) => {
     try {
-      return await Product.find()
+      // Convert page & pageSize to numbers
+      page = parseInt(page);
+      pageSize = parseInt(pageSize);
+  
+      // Calculate offset
+      const skip = (page - 1) * pageSize;
+  
+      // Fetch paginated products
+      const products = await Product.find()
         .populate('skinTypeId')
         .populate('cartId')
         .populate('stepRoutineId')
-        .populate('voucherId');
+        .populate('voucherId')
+        .skip(skip)
+        .limit(pageSize);
+  
+      // Get total count of products
+      const totalItem = await Product.countDocuments();
+  
+      return {
+        totalItem,
+        page,
+        pageSize,
+        totalPages: Math.ceil(totalItem / pageSize),
+        data: products,
+      };
     } catch (error) {
       throw { status: 500, message: "Failed to retrieve products" };
     }
   },
+  
 
   // Get a single product by ID
   getById: async (id) => {
