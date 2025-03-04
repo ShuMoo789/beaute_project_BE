@@ -29,6 +29,7 @@ module.exports = {
         .populate('cartId')
         .populate('stepRoutineId')
         .populate('voucherId')
+        .populate('category')
         .skip(skip)
         .limit(pageSize);
   
