@@ -74,4 +74,48 @@ module.exports = {
       return res.status(error.status || 500).json({ message: error.message });
     }
   },
+
+  // Add an answer to a question
+  addAnswer: async (req, res) => {
+    const { questionId, answerId } = req.body;
+
+    if (!questionId || !answerId) {
+      return res.status(400).json({ message: "Question ID and Answer ID are required" });
+    }
+
+    try {
+      const data = await quizQuestionServices.addAnswer(questionId, answerId);
+      return res.json(data);
+    } catch (error) {
+      return res.status(error.status || 500).json({ message: error.message });
+    }
+  },
+
+  // Remove an answer from a question
+  removeAnswer: async (req, res) => {
+    const { questionId, answerId } = req.body;
+
+    if (!questionId || !answerId) {
+      return res.status(400).json({ message: "Question ID and Answer ID are required" });
+    }
+
+    try {
+      const data = await quizQuestionServices.removeAnswer(questionId, answerId);
+      return res.json(data);
+    } catch (error) {
+      return res.status(error.status || 500).json({ message: error.message });
+    }
+  },
+
+  // Get all answers for a specific question
+  getAnswers: async (req, res) => {
+    const { questionId } = req.params;
+
+    try {
+      const data = await quizQuestionServices.getAnswers(questionId);
+      return res.json(data);
+    } catch (error) {
+      return res.status(error.status || 500).json({ message: error.message });
+    }
+  }
 };
