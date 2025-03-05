@@ -18,7 +18,6 @@ const routineStepSchema = new Schema(
     routine: {
       type: Schema.Types.ObjectId,
       ref: "Routine", // Links back to Routine
-      required: true,
     },
   },
   {
