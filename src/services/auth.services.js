@@ -1,4 +1,5 @@
-const User = require("../models/user.model"); // ✅ Chỉ cần 1 biến model
+const User = require("../models/user.model"); 
+const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 module.exports = {
@@ -21,8 +22,15 @@ module.exports = {
           });
         }
 
+        const access_token = jwt.sign(
+          { id: user._id, role: user.role },
+          process.env.API_SECRET,
+          { expiresIn: "3h" }
+        );
+
         return resolve({
           message: "Đăng nhập thành công",
+          access_token,
           data: user,
         });
 
