@@ -10,7 +10,12 @@ const createSkinType = async (data) => {
   try {
     return await SkinType.create(data);
   } catch (error) {
-    throw { status: 500, message: "Failed to create skin type", error: error.message };
+    console.log(error);
+    throw {
+      status: 500,
+      message: "Failed to create skin type",
+      error: error.message,
+    };
   }
 };
 
@@ -22,7 +27,11 @@ const getAllSkinTypes = async () => {
   try {
     return await SkinType.find().populate("routines");
   } catch (error) {
-    throw { status: 500, message: "Failed to retrieve skin types", error: error.message };
+    throw {
+      status: 500,
+      message: "Failed to retrieve skin types",
+      error: error.message,
+    };
   }
 };
 
@@ -37,7 +46,10 @@ const getSkinTypeById = async (id) => {
     if (!skinType) throw { status: 404, message: "Skin type not found" };
     return skinType;
   } catch (error) {
-    throw { status: error.status || 500, message: error.message || "Failed to retrieve skin type" };
+    throw {
+      status: error.status || 500,
+      message: error.message || "Failed to retrieve skin type",
+    };
   }
 };
 
@@ -49,11 +61,17 @@ const getSkinTypeById = async (id) => {
  */
 const updateSkinType = async (id, updateData) => {
   try {
-    const updatedSkinType = await SkinType.findByIdAndUpdate(id, updateData, { new: true });
+    const updatedSkinType = await SkinType.findByIdAndUpdate(id, updateData, {
+      new: true,
+    });
     if (!updatedSkinType) throw { status: 404, message: "Skin type not found" };
     return updatedSkinType;
   } catch (error) {
-    throw { status: 500, message: "Failed to update skin type", error: error.message };
+    throw {
+      status: 500,
+      message: "Failed to update skin type",
+      error: error.message,
+    };
   }
 };
 
@@ -68,7 +86,11 @@ const deleteSkinType = async (id) => {
     if (!deletedSkinType) throw { status: 404, message: "Skin type not found" };
     return deletedSkinType;
   } catch (error) {
-    throw { status: 500, message: "Failed to delete skin type", error: error.message };
+    throw {
+      status: 500,
+      message: "Failed to delete skin type",
+      error: error.message,
+    };
   }
 };
 
@@ -91,7 +113,10 @@ const addRoutineToSkinType = async (skinTypeId, routineId) => {
 
     return skinType;
   } catch (error) {
-    throw { status: error.status || 500, message: error.message || "Failed to add routine to skin type" };
+    throw {
+      status: error.status || 500,
+      message: error.message || "Failed to add routine to skin type",
+    };
   }
 };
 
@@ -111,7 +136,10 @@ const removeRoutineFromSkinType = async (skinTypeId, routineId) => {
 
     return skinType;
   } catch (error) {
-    throw { status: error.status || 500, message: error.message || "Failed to remove routine from skin type" };
+    throw {
+      status: error.status || 500,
+      message: error.message || "Failed to remove routine from skin type",
+    };
   }
 };
 

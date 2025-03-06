@@ -1,3 +1,5 @@
+const mongoose = require("mongoose");
+const userModel = require("../models/user.model");
 const authServices = require("../services/auth.services");
 
 module.exports = {
@@ -8,7 +10,7 @@ module.exports = {
     }
     if (!formData.password) {
       return res.status(401).json({ message: "mat khau bat buoc nhap" });
-    } 
+    }
     try {
       const data = await authServices.login(formData);
       return res.json(data);
@@ -30,6 +32,52 @@ module.exports = {
       return res.json(data);
     } catch (error) {
       return res.status(error.status).json(error);
+    }
+  },
+
+  getAllUser: async (req, res) => {
+    try {
+      const users = await userModel.find();
+      return res.status(200).json({
+        ok: true,
+        users,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        ok: false,
+        message: error.message || "Lỗi hệ thống",
+      });
+    }
+  },
+  getUserById: async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({
+          ok: false,
+          message: "ID không hợp lệ",
+        });
+      }
+
+      const user = await userModel.findById(id);
+
+      if (!user) {
+        return res.status(404).json({
+          ok: false,
+          message: "Không tìm thấy Routine",
+        });
+      }
+
+      return res.status(200).json({
+        ok: true,
+        user,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        ok: false,
+        message: error.message || "Lỗi hệ thống",
+      });
     }
   },
 };
