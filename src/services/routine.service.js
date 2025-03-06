@@ -141,4 +141,32 @@ module.exports = {
       });
     }
   },
+
+  getBySkinType: async (skinTypeId) => {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(skinTypeId)) {
+        return Promise.reject({
+          status: 400,
+          ok: false,
+          message: "ID skinType không hợp lệ",
+        });
+      }
+
+      const routines = await Routine.find({ skinType: skinTypeId })
+        .populate("skinType")
+        .populate("steps");
+
+      return {
+        status: 200,
+        ok: true,
+        routines,
+      };
+    } catch (error) {
+      return Promise.reject({
+        status: 500,
+        ok: false,
+        message: error.message || "Lỗi hệ thống",
+      });
+    }
+  }
 };

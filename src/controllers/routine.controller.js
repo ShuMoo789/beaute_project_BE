@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const Routine = require("../models/routine.model");
 
 const routineController = {
-  // 🟢 Tạo Routine mới
   create: async (req, res) => {
     try {
       const { routineName, routineDescription, skinType } = req.body;
@@ -41,7 +40,6 @@ const routineController = {
     }
   },
 
-  // 🟢 Lấy danh sách tất cả Routine
   getAll: async (req, res) => {
     try {
       const routines = await Routine.find().populate("skinType").populate("steps");
@@ -57,7 +55,6 @@ const routineController = {
     }
   },
 
-  // 🟢 Lấy Routine theo ID
   getById: async (req, res) => {
     try {
       const { id } = req.params;
@@ -89,7 +86,6 @@ const routineController = {
     }
   },
 
-  // 🟢 Cập nhật Routine
   update: async (req, res) => {
     try {
       const { id } = req.params;
@@ -129,7 +125,6 @@ const routineController = {
     }
   },
 
-  // 🟢 Xóa Routine
   delete: async (req, res) => {
     try {
       const { id } = req.params;
@@ -162,6 +157,33 @@ const routineController = {
       });
     }
   },
+
+  getBySkinType: async (req, res) => {
+    try {
+      const { skinTypeId } = req.params;
+
+      if (!mongoose.Types.ObjectId.isValid(skinTypeId)) {
+        return res.status(400).json({
+          ok: false,
+          message: "ID skinType không hợp lệ",
+        });
+      }
+
+      const routines = await Routine.find({ skinType: skinTypeId })
+        .populate("skinType");
+
+      return res.status(200).json({
+        ok: true,
+        routines,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        ok: false,
+        message: error.message || "Lỗi hệ thống",
+      });
+    }
+  },
+
 };
 
 module.exports = routineController;

@@ -8,5 +8,6 @@ routine.get("/getAll", routineController.getAll);
 routine.get("/getByID/:id", routineController.getById);
 routine.put("/update/:id", routineController.update);
 routine.delete("/delete/:id", routineController.delete);
+routine.get("/getRoutineBySkinType/:skinTypeId", routineController.getBySkinType)
 
 module.exports = routine; 

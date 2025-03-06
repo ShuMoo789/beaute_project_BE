@@ -118,4 +118,52 @@ module.exports = {
         });
       }
     }),
+  
+  getAllUser: () =>
+    new Promise(async (resolve, reject) => {
+      try {
+        const users = await User.find().select("-password"); // Loại bỏ trường password
+        resolve({
+          ok: true,
+          status: 200,
+          users,
+        });
+      } catch (error) {
+        reject({
+          message: error?.message || "Lỗi hệ thống",
+          status: 500,
+        });
+      }
+    }),
+
+  getById: (id) =>
+    new Promise(async (resolve, reject) => {
+      try {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+          return reject({
+            message: "ID không hợp lệ",
+            status: 400,
+          });
+        }
+
+        const user = await User.findById(id).select("-password");
+        if (!user) {
+          return reject({
+            message: "Không tìm thấy người dùng",
+            status: 404,
+          });
+        }
+
+        resolve({
+          ok: true,
+          status: 200,
+          user,
+        });
+      } catch (error) {
+        reject({
+          message: error?.message || "Lỗi hệ thống",
+          status: 500,
+        });
+      }
+    }),
 };
