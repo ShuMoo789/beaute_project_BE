@@ -15,10 +15,22 @@ const uploadSingle = async (req, res) => {
     const file = req.file.path;
     res.send({ file: file });
   } catch (error) {
-    return res.status(500).json({ message: "Loi he thong khong tai anh len" });
+    return res.status(500).json({ message: "Error uploading file" });
   }
 };
+
+const uploadMultipleImages = async (req, res) => {
+  try {
+    const fileLinks = req.files.map((file) => file.path);
+    res.send({ urls: fileLinks });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error uploading files");
+  }
+};
+
 module.exports = {
   upload,
   uploadSingle,
+  uploadMultipleImages,
 };
