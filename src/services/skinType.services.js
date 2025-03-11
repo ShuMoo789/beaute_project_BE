@@ -1,5 +1,6 @@
 const SkinType = require("../models/skinType.model");
 const Routine = require("../models/routine.model");
+const User = require("../models/user.model");
 
 /**
  * Create a new skin type.
@@ -96,17 +97,17 @@ const deleteSkinType = async (id) => {
 
 /**
  * Add a routine to a skin type.
- * @param {String} skinTypeId - Skin type ID
+ * @param {String} skinType - Skin type ID
  * @param {String} routineId - Routine ID
  * @returns {Promise<Object>} - Updated skin type with routines
  */
-const addRoutineToSkinType = async (skinTypeId, routineId) => {
+const addRoutineToSkinType = async (skinType, routineId) => {
   try {
     const routine = await Routine.findById(routineId);
     if (!routine) throw { status: 404, message: "Routine not found" };
 
     const skinType = await SkinType.findByIdAndUpdate(
-      skinTypeId,
+      skinType,
       { $addToSet: { routines: routineId } }, // Prevent duplicates
       { new: true }
     ).populate("routines");
@@ -122,14 +123,14 @@ const addRoutineToSkinType = async (skinTypeId, routineId) => {
 
 /**
  * Remove a routine from a skin type.
- * @param {String} skinTypeId - Skin type ID
+ * @param {String} skinType - Skin type ID
  * @param {String} routineId - Routine ID
  * @returns {Promise<Object>} - Updated skin type with routines
  */
-const removeRoutineFromSkinType = async (skinTypeId, routineId) => {
+const removeRoutineFromSkinType = async (skinType, routineId) => {
   try {
     const skinType = await SkinType.findByIdAndUpdate(
-      skinTypeId,
+      skinType,
       { $pull: { routines: routineId } }, // Remove from array
       { new: true }
     ).populate("routines");
@@ -143,6 +144,56 @@ const removeRoutineFromSkinType = async (skinTypeId, routineId) => {
   }
 };
 
+/**
+ * Update a user's skin type based on points.
+ * @param {String} userId - User ID
+ * @param {Number} points - Points for skin analysis
+ * @returns {Promise<Object>} - Updated user with new skin type
+ */
+const updateUserSkinType = async (userId, points) => {
+  try {
+    // Find the skin type that matches the user's points
+    const skinType = await SkinType.findOne({
+      pointMin: { $lte: points }, // Points should be greater than or equal to pointMin
+      pointMax: { $gte: points }, // Points should be less than or equal to pointMax
+    });
+
+    if (!skinType) throw { status: 404, message: "No matching skin type found for the given points" };
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { skinType: skinType._id }, // Update the skinType field with the found skin type ID
+      { new: true } // Return the updated user
+    ).populate("skinType"); // Optionally populate the skinType field
+
+    if (!updatedUser) throw { status: 404, message: "User not found" };
+    return updatedUser;
+  } catch (error) {
+    throw {
+      status: error.status || 500,
+      message: error.message || "Failed to update user skin type",
+    };
+  }
+};
+
+/**
+ * Get skin types by type.
+ * @param {String} type - The type of skin to search for (e.g., "Oily", "Combination", "Dry")
+ * @returns {Promise<Array>} - List of skin types matching the specified type
+ */
+const getSkinTypeByType = async (type) => {
+  try {
+    const skinTypes = await SkinType.find({ type }); // Assuming 'type' is the field in the SkinType model
+    if (!skinTypes.length) throw { status: 404, message: "No skin types found for the specified type" };
+    return skinTypes;
+  } catch (error) {
+    throw {
+      status: error.status || 500,
+      message: error.message || "Failed to retrieve skin types by type",
+    };
+  }
+};
+
 module.exports = {
   createSkinType,
   getAllSkinTypes,
@@ -151,4 +202,6 @@ module.exports = {
   deleteSkinType,
   addRoutineToSkinType,
   removeRoutineFromSkinType,
+  updateUserSkinType,
+  getSkinTypeByType,
 };

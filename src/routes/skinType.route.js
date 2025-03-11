@@ -11,6 +11,7 @@ skinTypeRouter.put('/:id', skinTypeController.updateSkinType);
 skinTypeRouter.delete('/:id', skinTypeController.deleteSkinType);
 
 // Add/Remove routines to/from skin types
+skinTypeRouter.post('/skin-analysis', skinTypeController.updateUserSkinType);
 skinTypeRouter.post('/:skinTypeId/routines/:routineId', skinTypeController.addRoutineToSkinType);
 skinTypeRouter.delete('/:skinTypeId/routines/:routineId', skinTypeController.removeRoutineFromSkinType);
 

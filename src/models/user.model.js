@@ -31,7 +31,7 @@ const userSchema = new Schema(
     },
     skinType: {
       type: Schema.Types.ObjectId,
-      ref: "Skin", // Reference to Skin table
+      ref: "SkinType", // Reference to Skin table
     },
   },
   {
