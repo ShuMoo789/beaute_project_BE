@@ -7,6 +7,7 @@ const skinTypeRouter = require("./skinType.route");
 const productRouter = require("./product.route");
 const routineStep = require("./routineStep.route");
 const routine = require("./routine.route");
+const cart = require("./cart.route");
 
 const initRoutes = (app) => {
   app.use("/api/category", categoryRouter);
@@ -18,6 +19,7 @@ const initRoutes = (app) => {
   app.use("/api/product", productRouter);
   app.use("/api/routine-step", routineStep);
   app.use("/api/routine", routine);
+  app.use("/api/cart", cart);
 };
 
 module.exports = initRoutes;
