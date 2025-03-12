@@ -1,12 +1,20 @@
 const QuizQuestion = require("../models/quizQuestion.model");
+const quizAnswerServices = require("./quizAnswer.services");
 
 module.exports = {
   // Create a new quiz question
   create: async (formData) => {
     try {
-      const quizQuestion = new QuizQuestion(formData);
+      const { title, description, answers } = formData; // Extracting directly from formData
+      const quizQuestion = new QuizQuestion({ title, description });
       await quizQuestion.save();
-      return quizQuestion;
+
+      // Assuming QuizAnswer is the model for answers
+      if (answers && answers.length > 0) { // Check if answers array is provided
+        const result = await quizAnswerServices.create(quizQuestion._id, answers); // Pass the answers array
+      }
+
+      return quizQuestion.populate('answers');
     } catch (error) {
       throw { status: 500, message: "Failed to create quiz question" };
     }

@@ -2,8 +2,8 @@ const QuizAnswer = require("../models/quizAnswer.model");
 const QuizQuestion = require("../models/quizQuestion.model");
 
 const quizAnswerServices = {
-    // Create a new quiz answer and link it to a quiz question
-    create: async (questionId, answerData) => {
+    // Create new quiz answers and link them to a quiz question
+    create: async (questionId, answerDataArray) => {
         try {
             // Ensure the question exists
             const question = await QuizQuestion.findById(questionId);
@@ -11,19 +11,29 @@ const quizAnswerServices = {
                 throw { status: 404, message: "Quiz question not found" };
             }
 
-            // Create the answer
-            const newAnswer = new QuizAnswer({ ...answerData, question: questionId });
-            await newAnswer.save();
+            // Create an array to hold the new answers
+            const newAnswers = [];
 
-            // Add the answer to the quiz question's answers array
+            // Loop through the answerDataArray and create answers
+            for (const answerData of answerDataArray) {
+                const newAnswer = new QuizAnswer({ ...answerData, question: questionId });
+                await newAnswer.save();
+                newAnswers.push(newAnswer._id); // Store the new answer ID
+            }
+
+            // Add all new answers to the quiz question's answers array
             await QuizQuestion.findByIdAndUpdate(
                 questionId,
-                { $push: { answers: newAnswer._id } },
+                { $push: { answers: { $each: newAnswers } } }, // Use $each to add multiple IDs
                 { new: true, useFindAndModify: false }
             );
-
-            return newAnswer;
+            await question.populate({
+                path: 'answers',
+                select: 'text point' // Filter to only include text and point fields
+            });
+            return question; // Return the array of new answer IDs
         } catch (error) {
+            console.log(error)
             throw { status: error.status || 500, message: error.message };
         }
     },
