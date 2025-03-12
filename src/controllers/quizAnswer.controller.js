@@ -3,17 +3,17 @@ const quizAnswerServices = require("../services/quizAnswer.services");
 module.exports = {
     // Create a new quiz answer
     create: async (req, res) => {
-        const { questionId, text } = req.body;
+        const { questionId, answers } = req.body;
 
         if (!questionId) {
             return res.status(400).json({ message: "Question ID is required" });
         }
-        if (!text) {
-            return res.status(400).json({ message: "Answer text is required" });
+        if (!answers) {
+            return res.status(400).json({ message: "Answers is required" });
         }
 
         try {
-            const data = await quizAnswerServices.create(questionId, { text });
+            const data = await quizAnswerServices.create(questionId, answers);
             return res.status(201).json(data);
         } catch (error) {
             return res.status(error.status || 500).json({ message: error.message });

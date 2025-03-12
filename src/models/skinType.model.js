@@ -32,6 +32,15 @@ const skinSchema = new Schema(
       type: Number,
       required: true, // Maximum points allowed for this skin type
     },
+    cause: {
+      type: String, // Field for the cause of the skin type
+    },
+    symptom: {
+      type: String, // Field for the symptoms associated with the skin type
+    },
+    treatment: {
+      type: String, // Field for the treatment options for the skin type
+    },
   },
   {
     versionKey: false,
