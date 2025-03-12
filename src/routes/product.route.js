@@ -11,7 +11,6 @@ productRouter.put("/:id", productController.update);
 productRouter.delete("/:id", productController.delete);
 
 // Additional specialized routes
-// productRouter.get("/category/:category", productController.getByCategory);
 // productRouter.get("/price-range", productController.getByPriceRange);
 // productRouter.patch("/:id/inventory", productController.updateInventory);
 

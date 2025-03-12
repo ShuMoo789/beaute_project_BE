@@ -13,18 +13,25 @@ module.exports = {
     }
   },
 
-  // Get all products
-  getAll: async (page = 1, pageSize = 10) => {
+  // Get all products with optional filters
+  getAll: async (filters = {}, page = 1, pageSize = 10) => {
     try {
       // Convert page & pageSize to numbers
       page = parseInt(page);
       pageSize = parseInt(pageSize);
+
+      // Validate filter fields
+      const validFields = ['name', 'brand', 'category', 'price', 'skinTypeId', 'cartId', 'stepRoutineId', 'voucherId'];
+      const invalidFields = Object.keys(filters).filter(field => !validFields.includes(field));
+      if (invalidFields.length > 0) {
+        throw { status: 400, message: `Invalid filter fields: ${invalidFields.join(', ')}` };
+      }
   
       // Calculate offset
       const skip = (page - 1) * pageSize;
   
-      // Fetch paginated products
-      const products = await Product.find()
+      // Fetch paginated products with filters
+      const products = await Product.find(filters)
         .populate('skinTypeId')
         .populate('cartId')
         .populate('stepRoutineId')
@@ -34,7 +41,7 @@ module.exports = {
         .limit(pageSize);
   
       // Get total count of products
-      const totalItem = await Product.countDocuments();
+      const totalItem = await Product.countDocuments(filters);
   
       return {
         totalItem,
@@ -44,7 +51,7 @@ module.exports = {
         data: products,
       };
     } catch (error) {
-      throw { status: 500, message: "Failed to retrieve products" };
+      throw { status: error.status || 500, message: error.message || "Failed to retrieve products" };
     }
   },
   
@@ -142,6 +149,15 @@ module.exports = {
       return await Product.find({ origin });
     } catch (error) {
       throw { status: 500, message: "Failed to retrieve products by origin" };
+    }
+  },
+
+  // Get products by brand
+  getByBrand: async (brand) => {
+    try {
+      return await Product.find({ brand });
+    } catch (error) {
+      throw { status: 500, message: "Failed to retrieve products by brand" };
     }
   }
 };
