@@ -49,6 +49,14 @@ module.exports = {
     const { id } = req.params;
     const formData = req.body;
 
+    // Validate incoming data
+    if (!formData.title) {
+      return res.status(400).json({ message: "Title is required" });
+    }
+    if (!formData.description) {
+      return res.status(400).json({ message: "Description is required" });
+    }
+
     try {
       const data = await quizQuestionServices.update(id, formData);
       if (!data) {

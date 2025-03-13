@@ -14,7 +14,7 @@ module.exports = {
         const result = await quizAnswerServices.create(quizQuestion._id, answers); // Pass the answers array
       }
 
-      return quizQuestion.populate('answers');
+      return quizQuestion;
     } catch (error) {
       throw { status: 500, message: "Failed to create quiz question" };
     }
@@ -37,7 +37,7 @@ module.exports = {
   // Get a single quiz question by ID
   getById: async (id) => {
     try {
-      return await QuizQuestion.findById(id);
+      return await QuizQuestion.findById(id).populate('answers');
     } catch (error) {
       throw { status: 500, message: "Failed to retrieve quiz question" };
     }
@@ -46,8 +46,25 @@ module.exports = {
   // Update a quiz question
   update: async (id, formData) => {
     try {
-      return await QuizQuestion.findByIdAndUpdate(id, formData, { new: true });
+      const { title, description, answers } = formData; // Extracting title, description, and answers
+      const updatedQuestion = await QuizQuestion.findByIdAndUpdate(id, { title, description }, { new: true });
+
+      // Update answers if provided
+      if (answers) {
+        // Update each answer using quizAnswerServices.update
+        for (const answer of answers) {
+          if (answer._id) {
+            await quizAnswerServices.update(answer._id, {question: updatedQuestion._id,text: answer.text, point: answer.point });
+          } else {
+            // If there's no _id, it means it's a new answer, handle accordingly
+            const newAnswer = await quizAnswerServices.create(updatedQuestion._id, [{ text: answer.text, point: answer.point }]);
+          }
+        }
+      }
+
+      return updatedQuestion.populate('answers');
     } catch (error) {
+      console.log(first)
       throw { status: 500, message: "Failed to update quiz question" };
     }
   },
