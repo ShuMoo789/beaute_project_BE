@@ -2,10 +2,7 @@ const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema(
   {
-    quantity: {
-      type: Number,
-    },
-    price: {
+    amount: {
       type: Number,
     },
     status: {
@@ -34,6 +31,7 @@ const orderSchema = new mongoose.Schema(
         price: { type: Number, required: true },
       },
     ],
+    appTransId: { type: String },
   },
   {
     versionKey: false,
