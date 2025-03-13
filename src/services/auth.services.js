@@ -6,7 +6,7 @@ module.exports = {
   login: (formData) =>
     new Promise(async (resolve, reject) => {
       try {
-        const user = await User.findOne({ username: formData.username }) 
+        const user = await User.findOne({ username: formData.username });
 
         if (!user) {
           return reject({
@@ -118,7 +118,7 @@ module.exports = {
         });
       }
     }),
-  
+
   getAllUser: () =>
     new Promise(async (resolve, reject) => {
       try {
@@ -166,4 +166,45 @@ module.exports = {
         });
       }
     }),
+
+  updateById: async (id, name, phone, email, avatar) => {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return Promise.reject({
+          message: "ID không hợp lệ",
+          status: 400,
+        });
+      }
+
+      const existingUser = await User.findById(id);
+      if (!existingUser) {
+        return Promise.reject({
+          message: "Không tìm thấy người dùng",
+          status: 404,
+        });
+      }
+
+      const updatedUser = await User.findByIdAndUpdate(
+        id,
+        { name, phone, email, avatar },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+
+      return {
+        status: 200,
+        ok: true,
+        message: "Cập nhật thông tin người dùng thành công",
+        user: updatedUser,
+      };
+    } catch (error) {
+      return Promise.reject({
+        status: error.status || 500,
+        ok: false,
+        message: error.message || "Lỗi hệ thống khi lấy đơn hàng!",
+      });
+    }
+  },
 };

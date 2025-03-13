@@ -71,10 +71,6 @@ const productSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "StepRoutine",
   },
-  voucherId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Voucher",
-  },
 }, { timestamps: true });
 
 module.exports = mongoose.model("Product", productSchema);
