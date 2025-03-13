@@ -18,7 +18,6 @@ module.exports = {
       return res.status(error.status).json(error);
     }
   },
-
   register: async (req, res) => {
     const formData = req.body;
     if (!formData.username) {
@@ -34,7 +33,6 @@ module.exports = {
       return res.status(error.status).json(error);
     }
   },
-
   getAllUser: async (req, res) => {
     try {
       const users = await userModel.find();
@@ -72,6 +70,38 @@ module.exports = {
       return res.status(200).json({
         ok: true,
         user,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        ok: false,
+        message: error.message || "Lỗi hệ thống",
+      });
+    }
+  },
+  updateById: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { name, phone, email, avatar } = req.body;
+
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({
+          ok: false,
+          message: "ID không hợp lệ",
+        });
+      }
+
+      const updatedUser = await userModel.findByIdAndUpdate(
+        id,
+        { name, phone, email, avatar },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+      return res.status(200).json({
+        ok: true,
+        message: "Cập nhật Routine thành công",
+        user: updatedUser,
       });
     } catch (error) {
       return res.status(500).json({
