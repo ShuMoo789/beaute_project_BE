@@ -42,7 +42,9 @@ const routineController = {
 
   getAll: async (req, res) => {
     try {
-      const routines = await Routine.find().populate("skinType").populate("steps");
+      const routines = await Routine.find()
+        .populate("skinType")
+        .populate("steps");
       return res.status(200).json({
         ok: true,
         routines,
@@ -66,7 +68,9 @@ const routineController = {
         });
       }
 
-      const routine = await Routine.findById(id).populate("skinType").populate("steps");
+      const routine = await Routine.findById(id)
+        .populate("skinType")
+        .populate("steps");
       if (!routine) {
         return res.status(404).json({
           ok: false,
@@ -169,8 +173,9 @@ const routineController = {
         });
       }
 
-      const routines = await Routine.find({ skinType: skinTypeId })
-        .populate("skinType");
+      const routines = await Routine.find({ skinType: skinTypeId }).populate(
+        "skinType"
+      );
 
       return res.status(200).json({
         ok: true,
@@ -183,7 +188,6 @@ const routineController = {
       });
     }
   },
-
 };
 
 module.exports = routineController;

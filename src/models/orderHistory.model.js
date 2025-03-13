@@ -2,10 +2,7 @@ const mongoose = require("mongoose");
 
 const orderHistorySchema = new mongoose.Schema(
   {
-    quantity: {
-      type: Number,
-    },
-    price: {
+    amount: {
       type: Number,
     },
     status: {
