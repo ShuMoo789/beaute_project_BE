@@ -21,7 +21,7 @@ module.exports = {
       pageSize = parseInt(pageSize);
 
       // Validate filter fields
-      const validFields = ['name', 'brand', 'category', 'price', 'skinTypeId', 'cartId', 'stepRoutineId', 'voucherId', 'productDiscount', 'inventory'];
+      const validFields = ['name', 'brand', 'category', 'price', 'skinTypeId', 'cartId', 'stepRoutineId', 'productDiscount', 'inventory'];
       const invalidFields = Object.keys(filters).filter(field => !validFields.includes(field));
       if (invalidFields.length > 0) {
         throw { status: 400, message: `Invalid filter fields: ${invalidFields.join(', ')}` };
@@ -35,7 +35,6 @@ module.exports = {
         .populate('skinTypeId')
         .populate('cartId')
         .populate('stepRoutineId')
-        .populate('voucherId')
         .populate('category')
         .skip(skip)
         .limit(pageSize);
@@ -63,7 +62,6 @@ module.exports = {
         .populate('skinTypeId')
         .populate('cartId')
         .populate('stepRoutineId')
-        .populate('voucherId');
     } catch (error) {
       throw { status: 500, message: "Failed to retrieve product" };
     }
