@@ -166,7 +166,7 @@ module.exports = {
     try {
       return await Product.find({
         productDiscount: { $gte: minDiscount, $lte: maxDiscount }
-      });
+      }).populate('category');
     } catch (error) {
       throw { status: 500, message: "Failed to retrieve products by discount range" };
     }
