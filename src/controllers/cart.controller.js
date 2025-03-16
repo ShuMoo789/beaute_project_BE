@@ -4,9 +4,9 @@ const cartService = require("../services/cart.services");
 module.exports = {
   addToCart: async (req, res) => {
     try {
-      const { bearerToken } = req.headers.authorization;
+      const bearerToken = req.headers.authorization;
       const token = bearerToken.split(" ")[1];
-      const { customerId } = jwtDecode(token).id;
+      const customerId = jwtDecode(token).id;
       const { productId, quantity } = req.body;
       const result = await cartService.addToCart(
         customerId,
