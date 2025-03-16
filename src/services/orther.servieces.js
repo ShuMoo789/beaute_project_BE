@@ -1,17 +1,17 @@
 const mongoose = require("mongoose");
-const Cart = require("../models/cart.model");
+const User = require("../models/user.model");
 const orderModel = require("../models/order.model");
 
 module.exports = {
   // Tạo đơn hàng
-  createOrder: async (orderDate, cartId, products) => {
+  createOrder: async (customerId, products) => {
     try {
-      const cart = await Cart.findById(cartId);
-      if (!cart) {
+      const user = await User.findById(customerId);
+      if (!user) {
         throw {
           status: 400,
           ok: false,
-          message: "Giỏ hàng không tồn tại!",
+          message: "Người dùng không tồn tại!",
         };
       }
       const totalAmount = products.reduce(
@@ -19,8 +19,7 @@ module.exports = {
         0
       );
       const newOrder = await orderModel.create({
-        orderDate,
-        cartId,
+        customerId,
         products,
         amount: totalAmount,
         status: "Pending",
@@ -92,4 +91,48 @@ module.exports = {
       });
     }
   },
+
+  getOrderByStatus: async (customerId, status) => {
+    try {
+      // Kiểm tra ObjectId hợp lệ
+      if (!mongoose.Types.ObjectId.isValid(customerId)) {
+        const error = new Error("ID user không hợp lệ");
+        error.status = 400;
+        throw error;
+      }
+  
+      // Kiểm tra user tồn tại
+      const user = await User.findById(customerId).lean();
+      if (!user) {
+        const error = new Error("Không tìm thấy user");
+        error.status = 404;
+        throw error;
+      }
+  
+      // Tìm đơn hàng theo customerId và status
+      const orders = await orderModel.find({ customerId, status }).lean();
+  
+      // Nếu không có đơn hàng nào
+      if (!orders.length) {
+        const error = new Error("Không tìm thấy đơn hàng với trạng thái trên");
+        error.status = 404;
+        throw error;
+      }
+  
+      return {
+        ok: true,
+        status: 200,
+        message: "Lấy đơn hàng theo trạng thái thành công",
+        data: orders,
+      };
+    } catch (error) {
+      console.error("Lỗi khi lấy đơn hàng theo trạng thái:", error);
+      return Promise.reject({
+        status: error.status || 500,
+        ok: false,
+        message: error.message || "Lỗi hệ thống khi lấy đơn hàng!",
+      });
+    }
+  },
+  
 };
