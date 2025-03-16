@@ -21,7 +21,10 @@ module.exports = {
 
   getCart: async (req, res) => {
     try {
-      const { customerId } = req.params;
+      const bearerToken = req.headers.authorization;
+      const token = bearerToken.split(" ")[1];
+      const customerId = jwtDecode(token).id;
+      console.log(customerId)
       const result = await cartService.getCart(customerId);
       res.status(result.status).json(result);
     } catch (error) {
