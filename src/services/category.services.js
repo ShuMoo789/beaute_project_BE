@@ -8,7 +8,8 @@ module.exports = {
       await category.save();
       return category;
     } catch (error) {
-      if (error.code === 11000) { // MongoDB duplicate key error code
+      if (error.code === 11000) {
+        // MongoDB duplicate key error code
         throw { status: 400, message: "Category name already exists" };
       }
       throw { status: 500, message: "Failed to create category" };
@@ -36,5 +37,5 @@ module.exports = {
       if (error.status === 404) throw error;
       throw { status: 500, message: "Failed to retrieve category" };
     }
-  }
+  },
 };
