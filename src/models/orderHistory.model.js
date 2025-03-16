@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const orderHistorySchema = new mongoose.Schema(
   {
+    customerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+      required: true,
+    },
     amount: {
       type: Number,
     },
@@ -14,11 +19,6 @@ const orderHistorySchema = new mongoose.Schema(
     orderId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Order",
-      required: true,
-    },
-    cartId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Cart",
       required: true,
     },
     products: [
