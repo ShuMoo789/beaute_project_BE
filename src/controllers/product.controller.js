@@ -123,6 +123,7 @@ module.exports = {
             const products = await productServices.getByProductDiscountRange(minDiscount, maxDiscount);
             res.status(200).json(products);
         } catch (error) {
+            console.log(error)
             res.status(error.status || 500).json({ message: error.message });
         }
     },
