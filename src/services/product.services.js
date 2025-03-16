@@ -21,7 +21,7 @@ module.exports = {
       pageSize = parseInt(pageSize);
 
       // Validate filter fields
-      const validFields = ['name', 'brand', 'category', 'price', 'skinTypeId', 'cartId', 'stepRoutineId', 'voucherId'];
+      const validFields = ['name', 'brand', 'category', 'price', 'skinTypeId', 'cartId', 'stepRoutineId', 'voucherId', 'productDiscount', 'inventory'];
       const invalidFields = Object.keys(filters).filter(field => !validFields.includes(field));
       if (invalidFields.length > 0) {
         throw { status: 400, message: `Invalid filter fields: ${invalidFields.join(', ')}` };
@@ -158,6 +158,17 @@ module.exports = {
       return await Product.find({ brand });
     } catch (error) {
       throw { status: 500, message: "Failed to retrieve products by brand" };
+    }
+  },
+
+  // Get products by product discount range
+  getByProductDiscountRange: async (minDiscount, maxDiscount) => {
+    try {
+      return await Product.find({
+        productDiscount: { $gte: minDiscount, $lte: maxDiscount }
+      });
+    } catch (error) {
+      throw { status: 500, message: "Failed to retrieve products by discount range" };
     }
   }
 };
