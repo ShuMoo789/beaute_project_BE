@@ -9,6 +9,7 @@ productRouter.get("/", productController.getAll);
 productRouter.get("/:id", productController.getById);
 productRouter.put("/:id", productController.update);
 productRouter.delete("/:id", productController.delete);
+productRouter.get("/flashsale", productController.getProductsByDiscountRange);
 
 // Additional specialized routes
 // productRouter.get("/price-range", productController.getByPriceRange);
