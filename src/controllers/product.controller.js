@@ -114,4 +114,16 @@ module.exports = {
             return res.status(error.status || 500).json({ message: error.message });
         }
     },
+
+    // Get products by product discount range
+    getProductsByDiscountRange: async (req, res) => {
+        const { minDiscount, maxDiscount } = req.query;
+
+        try {
+            const products = await productServices.getByProductDiscountRange(minDiscount, maxDiscount);
+            res.status(200).json(products);
+        } catch (error) {
+            res.status(error.status || 500).json({ message: error.message });
+        }
+    },
 };
