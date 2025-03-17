@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const User = require("../models/user.model");
 const orderModel = require("../models/order.model");
 const productModel = require("../models/product.model");
+const cartModel = require("../models/cart.model");
 
 module.exports = {
   // Tạo đơn hàng
@@ -68,6 +69,20 @@ module.exports = {
         amount: totalAmount,
         status: "Pending",
       });
+
+      const cart = await cartModel.findOne({ customerId });
+      if (!cart) {
+        return Promise.reject({
+          status: 404,
+          ok: false,
+          message: "Giỏ hàng không tồn tại",
+        });
+      }
+      // Lọc ra những sản phẩm không nằm trong danh sách cần xóa
+      cart.products = cart.products.filter(
+        (item) => !productIds.includes(item.productId.toString())
+      );
+      await cart.save();
 
       return {
         status: 200,
@@ -154,24 +169,26 @@ module.exports = {
       }
 
       // Tìm đơn hàng theo customerId và status
-      const orders = await orderModel.find({ customerId, status }).lean();
+      const orders = await orderModel.find({ status });
 
-      // // Nếu không có đơn hàng nào
-      // if (!orders.length) {
-      //   const error = new Error("Không tìm thấy đơn hàng với trạng thái trên");
-      //   error.status = 404;
-      //   throw error;
-      // }
-
-      // Kiểm tra xem có đơn hàng nào với status tương ứng không
-      const orderExists = orders.findIndex((order) => order.status === status);
-      if (orderExists === -1) {
+      // Nếu không có đơn hàng nào
+      if (!orders.length) {
         return {
           ok: true,
           status: 200,
           message: "Không tìm thấy đơn hàng có trạng thái trên",
         };
       }
+
+      // // Kiểm tra xem có đơn hàng nào với status tương ứng không
+      // const orderExists = orders.findIndex((order) => order.status === status);
+      // if (orderExists === -1) {
+      //   return {
+      //     ok: true,
+      //     status: 200,
+      //     message: "Không tìm thấy đơn hàng có trạng thái trên",
+      //   };
+      // }
 
       return {
         ok: true,
