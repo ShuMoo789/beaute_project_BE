@@ -1,11 +1,13 @@
 const mongoose = require("mongoose");
 const User = require("../models/user.model");
 const orderModel = require("../models/order.model");
+const productModel = require("../models/product.model");
 
 module.exports = {
   // Tạo đơn hàng
   createOrder: async (customerId, products) => {
     try {
+      // Kiểm tra người dùng tồn tại
       const user = await User.findById(customerId);
       if (!user) {
         throw {
@@ -15,23 +17,51 @@ module.exports = {
         };
       }
 
+      // Lấy danh sách productId từ products
+      const productIds = products.map((p) => p.productId);
+
+      // Lấy thông tin sản phẩm từ database
+      const dbProducts = await productModel.find({
+        _id: { $in: productIds },
+      });
+
+      if (!dbProducts.length) {
+        throw {
+          status: 404,
+          ok: false,
+          message: "Không tìm thấy sản phẩm!",
+        };
+      }
+
+      // Tạo map từ productId để lấy quantity dễ dàng
+      const productQuantityMap = products.reduce((acc, item) => {
+        acc[item.productId] = item.quantity;
+        return acc;
+      }, {});
+
       // Xử lý từng sản phẩm để tính totalPriceAfterDiscount
-      const updatedProducts = products.map((product) => {
+      const updatedProducts = dbProducts.map((product) => {
+        const quantity = productQuantityMap[product._id.toString()] || 1;
         const discountPrice =
           product.price * (1 - (product.productDiscount || 0) / 100);
-        const totalPriceAfterDiscount = discountPrice * product.quantity;
+        const totalPriceAfterDiscount = discountPrice * quantity;
         return {
-          ...product,
+          productId: product._id,
+          image: product.image,
+          name: product.name,
+          price: product.price,
+          quantity,
+          productDiscount: product.productDiscount,
           totalPriceAfterDiscount,
         };
       });
 
-      const totalAmount = products.reduce((total, product) => {
-        const discountPrice =
-          product.price * (1 - (product.productDiscount || 0) / 100);
-        return total + discountPrice * product.quantity;
+      // Tính tổng số tiền đơn hàng
+      const totalAmount = updatedProducts.reduce((total, product) => {
+        return total + product.totalPriceAfterDiscount;
       }, 0);
 
+      // Tạo đơn hàng mới
       const newOrder = await orderModel.create({
         customerId,
         products: updatedProducts,
@@ -42,7 +72,7 @@ module.exports = {
       return {
         status: 200,
         ok: true,
-        message: "Tao order thanh cong",
+        message: "Tạo order thành công",
         data: newOrder,
       };
     } catch (error) {
