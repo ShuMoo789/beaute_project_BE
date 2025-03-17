@@ -71,6 +71,7 @@ module.exports = {
       });
 
       const cart = await cartModel.findOne({ customerId });
+      console.log(customerId);
       if (!cart) {
         return Promise.reject({
           status: 404,
