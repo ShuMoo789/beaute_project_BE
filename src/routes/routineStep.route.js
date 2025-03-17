@@ -4,7 +4,7 @@ const verify = require("../middlewares/verify");
 const routineStep = express.Router(); // Khai báo router
 
 // Định nghĩa API
-routineStep.post("/createRoutineStep", verify.verifyToken, routineStepController.create);
+routineStep.post("/createRoutineStep", routineStepController.create);
 routineStep.get("/getAll", routineStepController.getAll);
 routineStep.get("/getByID/:id", routineStepController.getById);
 routineStep.put("/update/:id", routineStepController.update);

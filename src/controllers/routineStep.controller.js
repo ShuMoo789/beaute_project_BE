@@ -29,7 +29,7 @@ module.exports = {
   },
   getById: async (req, res) => {
     try {
-      const step = await routineStepService.getById(req.params.id);
+      const step = (await routineStepService.getById(req.params.id)).populate("productIds");
       if (!step) {
         return res.status(404).json({
           ok: false,

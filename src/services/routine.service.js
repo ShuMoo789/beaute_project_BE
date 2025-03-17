@@ -4,7 +4,7 @@ const Routine = require("../models/routine.model");
 module.exports = {
   create: async (formData) => {
     try {
-      const { routineName, routineDescription, skinType } = formData;
+      const { routineName, routineDescription, skinType, steps } = formData;
 
       if (!routineName || !routineDescription || !skinType) {
         return Promise.reject({
@@ -26,9 +26,9 @@ module.exports = {
         routineName,
         routineDescription,
         skinType,
-        steps: [],
+        steps: steps || [],
       });
-
+      await newRoutine.populate("steps");
       return {
         status: 201,
         ok: true,

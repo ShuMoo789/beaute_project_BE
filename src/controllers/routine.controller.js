@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
-const Routine = require("../models/routine.model");
+const routineService = require("../services/routine.service");
 
 const routineController = {
   create: async (req, res) => {
     try {
-      const { routineName, routineDescription, skinType } = req.body;
+      const { routineName, routineDescription, skinType, steps } = req.body;
 
       if (!routineName || !routineDescription || !skinType) {
         return res.status(400).json({
@@ -20,11 +20,18 @@ const routineController = {
         });
       }
 
-      const newRoutine = await Routine.create({
+      if (steps && !Array.isArray(steps)) {
+        return res.status(400).json({
+          ok: false,
+          message: "steps phải là một mảng các ID",
+        });
+      }
+
+      const newRoutine = await routineService.create({
         routineName,
         routineDescription,
         skinType,
-        steps: [],
+        steps: steps || [],
       });
 
       return res.status(201).json({
@@ -42,9 +49,7 @@ const routineController = {
 
   getAll: async (req, res) => {
     try {
-      const routines = await Routine.find()
-        .populate("skinType")
-        .populate("steps");
+      const routines = await routineService.getAll();
       return res.status(200).json({
         ok: true,
         routines,
@@ -68,9 +73,7 @@ const routineController = {
         });
       }
 
-      const routine = await Routine.findById(id)
-        .populate("skinType")
-        .populate("steps");
+      const routine = await routineService.getById(id);
       if (!routine) {
         return res.status(404).json({
           ok: false,
@@ -93,7 +96,7 @@ const routineController = {
   update: async (req, res) => {
     try {
       const { id } = req.params;
-      const { routineName, routineDescription, skinType } = req.body;
+      const { routineName, routineDescription, skinType, steps } = req.body;
 
       if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({
@@ -102,19 +105,12 @@ const routineController = {
         });
       }
 
-      const existingRoutine = await Routine.findById(id);
-      if (!existingRoutine) {
-        return res.status(404).json({
-          ok: false,
-          message: "Không tìm thấy Routine",
-        });
-      }
-
-      const updatedRoutine = await Routine.findByIdAndUpdate(
-        id,
-        { routineName, routineDescription, skinType },
-        { new: true, runValidators: true }
-      );
+      const updatedRoutine = await routineService.update(id, {
+        routineName,
+        routineDescription,
+        skinType,
+        steps: steps || undefined, // Only update steps if provided
+      });
 
       return res.status(200).json({
         ok: true,
@@ -140,15 +136,7 @@ const routineController = {
         });
       }
 
-      const existingRoutine = await Routine.findById(id);
-      if (!existingRoutine) {
-        return res.status(404).json({
-          ok: false,
-          message: "Không tìm thấy Routine",
-        });
-      }
-
-      await Routine.findByIdAndDelete(id);
+      await routineService.delete(id);
 
       return res.status(200).json({
         ok: true,
@@ -173,9 +161,7 @@ const routineController = {
         });
       }
 
-      const routines = await Routine.find({ skinType: skinTypeId }).populate(
-        "skinType"
-      );
+      const routines = await routineService.getBySkinType(skinTypeId);
 
       return res.status(200).json({
         ok: true,
