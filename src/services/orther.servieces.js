@@ -14,13 +14,27 @@ module.exports = {
           message: "Người dùng không tồn tại!",
         };
       }
-      const totalAmount = products.reduce(
-        (total, product) => total + product.price * product.quantity,
-        0
-      );
+
+      // Xử lý từng sản phẩm để tính totalPriceAfterDiscount
+      const updatedProducts = products.map((product) => {
+        const discountPrice =
+          product.price * (1 - (product.productDiscount || 0) / 100);
+        const totalPriceAfterDiscount = discountPrice * product.quantity;
+        return {
+          ...product,
+          totalPriceAfterDiscount,
+        };
+      });
+
+      const totalAmount = products.reduce((total, product) => {
+        const discountPrice =
+          product.price * (1 - (product.productDiscount || 0) / 100);
+        return total + discountPrice * product.quantity;
+      }, 0);
+
       const newOrder = await orderModel.create({
         customerId,
-        products,
+        products: updatedProducts,
         amount: totalAmount,
         status: "Pending",
       });
@@ -100,7 +114,7 @@ module.exports = {
         error.status = 400;
         throw error;
       }
-  
+
       // Kiểm tra user tồn tại
       const user = await User.findById(customerId).lean();
       if (!user) {
@@ -108,17 +122,27 @@ module.exports = {
         error.status = 404;
         throw error;
       }
-  
+
       // Tìm đơn hàng theo customerId và status
       const orders = await orderModel.find({ customerId, status }).lean();
-  
-      // Nếu không có đơn hàng nào
-      if (!orders.length) {
-        const error = new Error("Không tìm thấy đơn hàng với trạng thái trên");
-        error.status = 404;
-        throw error;
+
+      // // Nếu không có đơn hàng nào
+      // if (!orders.length) {
+      //   const error = new Error("Không tìm thấy đơn hàng với trạng thái trên");
+      //   error.status = 404;
+      //   throw error;
+      // }
+
+      // Kiểm tra xem có đơn hàng nào với status tương ứng không
+      const orderExists = orders.findIndex((order) => order.status === status);
+      if (orderExists === -1) {
+        return {
+          ok: true,
+          status: 200,
+          message: "Không tìm thấy đơn hàng có trạng thái trên",
+        };
       }
-  
+
       return {
         ok: true,
         status: 200,
@@ -126,7 +150,6 @@ module.exports = {
         data: orders,
       };
     } catch (error) {
-      console.error("Lỗi khi lấy đơn hàng theo trạng thái:", error);
       return Promise.reject({
         status: error.status || 500,
         ok: false,
@@ -134,5 +157,4 @@ module.exports = {
       });
     }
   },
-  
 };
