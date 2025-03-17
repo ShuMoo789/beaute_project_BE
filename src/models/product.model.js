@@ -63,10 +63,6 @@ const productSchema = new mongoose.Schema({
     required: true,
     default: 0,
   },
-  cartId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Cart",
-  },
   stepRoutineId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "StepRoutine",
