@@ -28,12 +28,12 @@ module.exports = {
         skinType,
         steps: steps || [],
       });
-      await newRoutine.populate("steps");
+      await newRoutine.populate({ path: "steps", populate: { path: "productIds" } });
       return {
         status: 201,
         ok: true,
         message: "Tạo Routine thành công",
-        routine: newRoutine,
+        data: newRoutine,
       };
     } catch (error) {
       return Promise.reject({
@@ -45,7 +45,7 @@ module.exports = {
   },
 
   getAll: async () => {
-    return await Routine.find().populate("skinType").populate("steps");
+    return await Routine.find().populate("skinType").populate({ path: "steps", populate: { path: "productIds" } });
   },
 
   getById: async (id) => {
@@ -154,7 +154,12 @@ module.exports = {
 
       const routines = await Routine.find({ skinType: skinTypeId })
         .populate("skinType")
-        .populate("steps");
+        .populate({
+          path: "steps",
+          populate: {
+            path: "productIds"
+          }
+        });
 
       return {
         status: 200,
