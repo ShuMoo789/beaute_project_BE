@@ -104,7 +104,6 @@ module.exports = {
     }
   },
   
-
   // Cập nhật số lượng sản phẩm trong giỏ hàng
   updateProductQuantity: async (customerId, productId, quantity) => {
     try {
