@@ -4,7 +4,7 @@ const RoutineStep = require("../models/routineStep.model");
 module.exports = {
   create: async (formData) => {
     try {
-      const { stepName, stepNumber, stepDescription, routine } = formData;
+      const { stepName, stepNumber, stepDescription, routine, productIds } = formData;
 
       // Kiểm tra đầu vào
       if (!stepName || !stepNumber || !stepDescription) {
@@ -49,8 +49,9 @@ module.exports = {
         stepNumber,
         stepDescription,
         routine,
+        productIds,
       });
-
+      await newStep.populate("productIds");
       return {
         status: 201,
         ok: true,
@@ -58,6 +59,7 @@ module.exports = {
         step: newStep,
       };
     } catch (error) {
+      console.log(error)
       return Promise.reject({
         status: 500,
         ok: false,
@@ -66,7 +68,8 @@ module.exports = {
     }
   },
   getAll: async () => {
-    return await RoutineStep.find().populate("routine");
+    const steps = await RoutineStep.find().populate("productIds");
+    return steps;
   },
   getById: async (id) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -77,7 +80,7 @@ module.exports = {
       };
     }
 
-    const step = await RoutineStep.findById(id).populate("routine");
+    const step = await RoutineStep.findById(id).populate("productIds");
     if (!step) {
       throw { 
         status: 404, 
@@ -112,7 +115,7 @@ module.exports = {
       const updatedStep = await RoutineStep.findByIdAndUpdate(id, formData, {
         new: true, // Trả về dữ liệu sau khi cập nhật
         runValidators: true, // Kiểm tra điều kiện validation trong model
-      });
+      }).populate("productIds");
 
       return {
         status: 200,
