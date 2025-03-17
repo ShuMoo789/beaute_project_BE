@@ -92,7 +92,7 @@ module.exports = {
     }
   },
 
-  getOrderByStatus: async (customerId, status) => {
+  getOrderByStatus: async (customerId, status = null) => {
     try {
       // Kiểm tra ObjectId hợp lệ
       if (!mongoose.Types.ObjectId.isValid(customerId)) {
@@ -110,7 +110,11 @@ module.exports = {
       }
   
       // Tìm đơn hàng theo customerId và status
-      const orders = await orderModel.find({ customerId, status }).lean();
+      const query = { customerId };
+      if (status) {
+        query.status = status;
+      }
+      const orders = await orderModel.find(query).lean();
   
       // Nếu không có đơn hàng nào
       if (!orders.length) {
