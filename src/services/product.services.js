@@ -21,7 +21,7 @@ module.exports = {
       pageSize = parseInt(pageSize);
 
       // Validate filter fields
-      const validFields = ['name', 'brand', 'category', 'price', 'skinTypeId', 'cartId', 'stepRoutineId', 'productDiscount', 'inventory'];
+      const validFields = ['name', 'brand', 'category', 'price', 'skinTypeId', 'stepRoutineId', 'productDiscount', 'inventory'];
       const invalidFields = Object.keys(filters).filter(field => !validFields.includes(field));
       if (invalidFields.length > 0) {
         throw { status: 400, message: `Invalid filter fields: ${invalidFields.join(', ')}` };
@@ -33,7 +33,6 @@ module.exports = {
       // Fetch paginated products with filters
       const products = await Product.find(filters)
         .populate('skinTypeId')
-        .populate('cartId')
         .populate('stepRoutineId')
         .populate('category')
         .skip(skip)
@@ -60,7 +59,6 @@ module.exports = {
     try {
       return await Product.findById(id)
         .populate('skinTypeId')
-        .populate('cartId')
         .populate('stepRoutineId')
     } catch (error) {
       throw { status: 500, message: "Failed to retrieve product" };
