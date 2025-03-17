@@ -14,7 +14,7 @@ module.exports = {
   },
 
   // Get all products with optional filters
-  getAll: async (filters = {}, page = 1, pageSize = 10) => {
+  getAll: async (filters = {}, page = 1, pageSize = 58) => {
     try {
       // Convert page & pageSize to numbers
       page = parseInt(page);

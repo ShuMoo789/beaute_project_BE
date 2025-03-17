@@ -21,7 +21,10 @@ module.exports = {
 
   getCart: async (req, res) => {
     try {
-      const { customerId } = req.params;
+      const bearerToken = req.headers.authorization;
+      const token = bearerToken.split(" ")[1];
+      const customerId = jwtDecode(token).id;
+      console.log(customerId)
       const result = await cartService.getCart(customerId);
       res.status(result.status).json(result);
     } catch (error) {
@@ -31,7 +34,10 @@ module.exports = {
 
   updateProductQuantity: async (req, res) => {
     try {
-      const { customerId, productId, quantity } = req.body;
+      const bearerToken = req.headers.authorization;
+      const token = bearerToken.split(" ")[1];
+      const customerId = jwtDecode(token).id;
+      const { productId, quantity } = req.body;
       const result = await cartService.updateProductQuantity(
         customerId,
         productId,
@@ -45,13 +51,17 @@ module.exports = {
 
   removeProductsFromCart: async (req, res) => {
     try {
-      const { customerId, productIds } = req.body;
+      const bearerToken = req.headers.authorization;
+      const token = bearerToken.split(" ")[1];
+      const customerId = jwtDecode(token).id;
+      const { productIds } = req.body;
       const result = await cartService.removeProductsFromCart(
         customerId,
         productIds
       );
       res.status(result.status).json(result);
     } catch (error) {
+      console.log(error)
       res.status(error.status || 500).json(error);
     }
   },
