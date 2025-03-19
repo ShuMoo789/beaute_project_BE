@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Routine = require("../models/routine.model");
+const { addRoutineToSkinType } = require("./skinType.services");
 
 module.exports = {
   create: async (formData) => {
@@ -28,6 +29,7 @@ module.exports = {
         skinType,
         steps: steps || [],
       });
+      addRoutineToSkinType(skinType, newRoutine._id);
       await newRoutine.populate({ path: "steps", populate: { path: "productIds" } });
       return {
         status: 201,
