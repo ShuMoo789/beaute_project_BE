@@ -41,15 +41,15 @@ const productSchema = new mongoose.Schema({
     required: true,
     ref: "Category"
   },
-  skinTypeId: {
+  skinTypeId: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "SkinType",
-  },
+  }],
   usageTime: {
     type: String,
     required: true,
     enum: ["Ban ngày", "Ban đêm", "Cả ngày và đêm"],
-  },
+  },  
   origin: {
     type: String,
     required: true,
@@ -63,9 +63,15 @@ const productSchema = new mongoose.Schema({
     required: true,
     default: 0,
   },
-  stepRoutineId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "StepRoutine",
+  priority: {
+    type: Boolean,
+    default: false,
+  },
+  rating: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 5
   },
 }, { timestamps: true });
 

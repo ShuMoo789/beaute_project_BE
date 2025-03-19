@@ -21,26 +21,25 @@ module.exports = {
       pageSize = parseInt(pageSize);
 
       // Validate filter fields
-      const validFields = ['name', 'brand', 'category', 'price', 'skinTypeId', 'stepRoutineId', 'productDiscount', 'inventory'];
+      const validFields = ['name', 'brand', 'category', 'price', 'skinTypeId', 'stepRoutineId', 'productDiscount', 'inventory', 'usageTime', 'origin', 'volume', 'rating', 'priority'];
       const invalidFields = Object.keys(filters).filter(field => !validFields.includes(field));
       if (invalidFields.length > 0) {
         throw { status: 400, message: `Invalid filter fields: ${invalidFields.join(', ')}` };
       }
-  
+
       // Calculate offset
       const skip = (page - 1) * pageSize;
-  
+
       // Fetch paginated products with filters
       const products = await Product.find(filters)
-        .populate('skinTypeId')
-        .populate('stepRoutineId')
+        .populate('skinTypeId', '_id, type')
         .populate('category')
         .skip(skip)
         .limit(pageSize);
-  
+
       // Get total count of products
       const totalItem = await Product.countDocuments(filters);
-  
+
       return {
         totalItem,
         page,
@@ -52,13 +51,13 @@ module.exports = {
       throw { status: error.status || 500, message: error.message || "Failed to retrieve products" };
     }
   },
-  
+
 
   // Get a single product by ID
   getById: async (id) => {
     try {
       return await Product.findById(id)
-        .populate('skinTypeId')
+        .populate('skinTypeId', '_id, type')
         .populate('stepRoutineId')
     } catch (error) {
       throw { status: 500, message: "Failed to retrieve product" };
@@ -83,15 +82,6 @@ module.exports = {
       return await Product.findByIdAndDelete(id);
     } catch (error) {
       throw { status: 500, message: "Failed to delete product" };
-    }
-  },
-
-  // Get products by category
-  getByCategory: async (category) => {
-    try {
-      return await Product.find({ category });
-    } catch (error) {
-      throw { status: 500, message: "Failed to retrieve products by category" };
     }
   },
 
@@ -127,33 +117,6 @@ module.exports = {
       return await Product.find({ skinTypeId });
     } catch (error) {
       throw { status: 500, message: "Failed to retrieve products by skin type" };
-    }
-  },
-
-  // Get products by usage time
-  getByUsageTime: async (usageTime) => {
-    try {
-      return await Product.find({ usageTime });
-    } catch (error) {
-      throw { status: 500, message: "Failed to retrieve products by usage time" };
-    }
-  },
-
-  // Get products by origin
-  getByOrigin: async (origin) => {
-    try {
-      return await Product.find({ origin });
-    } catch (error) {
-      throw { status: 500, message: "Failed to retrieve products by origin" };
-    }
-  },
-
-  // Get products by brand
-  getByBrand: async (brand) => {
-    try {
-      return await Product.find({ brand });
-    } catch (error) {
-      throw { status: 500, message: "Failed to retrieve products by brand" };
     }
   },
 
