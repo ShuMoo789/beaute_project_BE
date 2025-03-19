@@ -101,13 +101,13 @@ const deleteSkinType = async (id) => {
  * @param {String} routineId - Routine ID
  * @returns {Promise<Object>} - Updated skin type with routines
  */
-const addRoutineToSkinType = async (skinType, routineId) => {
+const addRoutineToSkinType = async (skinTypeId, routineId) => {
   try {
     const routine = await Routine.findById(routineId);
     if (!routine) throw { status: 404, message: "Routine not found" };
 
     const skinType = await SkinType.findByIdAndUpdate(
-      skinType,
+      {_id : skinTypeId},
       { $addToSet: { routines: routineId } }, // Prevent duplicates
       { new: true }
     ).populate("routines");
