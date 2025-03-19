@@ -10,6 +10,7 @@ const routine = require("./routine.route");
 const cart = require("./cart.route");
 const paymemtRoute = require("./payment.route");
 const orderRoute = require("./order.route");
+const quizResultRouter = require("./quizResult.route");
 
 const initRoutes = (app) => {
   app.use("/api/category", categoryRouter);
@@ -24,6 +25,7 @@ const initRoutes = (app) => {
   app.use("/api/cart", cart);
   app.use("/api/payment", paymemtRoute);
   app.use("/api/order", orderRoute);
+  app.use("/api/quiz-result", quizResultRouter);
 };
 
 module.exports = initRoutes;

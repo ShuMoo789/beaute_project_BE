@@ -1,5 +1,6 @@
 const { jwtDecode } = require("jwt-decode");
 const skinTypeService = require("../services/skinType.services");
+const quizResultModel = require("../models/quizResult.model");
 
 /**
  * Create a new skin type.
@@ -119,13 +120,13 @@ const updateUserSkinType = async (req, res) => {
 
     // Decrypt token to get user object
     const userObject = jwtDecode(token); // Assuming decryptToken is a function that decrypts the token
-    const { points } = req.body; // Expecting points to be an array of values
+    const { points, content } = req.body; // Expecting points to be an array of values
 
     // Analyze points to determine skin type
-    const skinType = await skinTypeService.updateUserSkinType(userObject.id, points); // Pass user ID along with points
-
+    const userData = await skinTypeService.updateUserSkinType(userObject.id, points); // Pass user ID along with points
+    await quizResultModel.create({ userId: userData._id, content: content, result: userData.skinType._id, points: points }); // Save skin type to quiz results
     // Respond with the assigned skin type
-    res.status(200).json({ message: "Skin type assigned successfully", data: skinType });
+    res.status(200).json({ message: "Skin type assigned successfully", data: userData });
   } catch (error) {
     res.status(error.status || 500).json({ message: error.message || "Failed to analyze skin type" });
   }
