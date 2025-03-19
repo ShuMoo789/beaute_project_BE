@@ -13,33 +13,33 @@ module.exports = {
     }
   },
 
-  // Get all products with optional filters
   getAll: async (filters = {}, page = 1, pageSize = 58) => {
     try {
       // Convert page & pageSize to numbers
       page = parseInt(page);
       pageSize = parseInt(pageSize);
-
+  
       // Validate filter fields
       const validFields = ['name', 'brand', 'category', 'price', 'skinTypeId', 'stepRoutineId', 'productDiscount', 'inventory', 'usageTime', 'origin', 'volume', 'rating', 'priority'];
       const invalidFields = Object.keys(filters).filter(field => !validFields.includes(field));
       if (invalidFields.length > 0) {
         throw { status: 400, message: `Invalid filter fields: ${invalidFields.join(', ')}` };
       }
-
+  
       // Calculate offset
       const skip = (page - 1) * pageSize;
-
-      // Fetch paginated products with filters
+  
+      // Fetch paginated products with filters, sorted by priority descending
       const products = await Product.find(filters)
+        .sort({ priority: -1, rating: -1 }) // Sort priority true first
         .populate('skinTypeId', '_id, type')
         .populate('category')
         .skip(skip)
         .limit(pageSize);
-
+  
       // Get total count of products
       const totalItem = await Product.countDocuments(filters);
-
+  
       return {
         totalItem,
         page,
