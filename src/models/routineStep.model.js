@@ -19,7 +19,7 @@ const routineStepSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Routine", // Links back to Routine
     },
-    productIds: [{
+    products: [{
       type: Schema.Types.ObjectId,
       ref: "Product",
     }],

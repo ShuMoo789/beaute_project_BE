@@ -5,7 +5,7 @@ const { addRoutineToSkinType } = require("./skinType.services");
 module.exports = {
   create: async (formData) => {
     try {
-      const { routineName, routineDescription, skinType, steps } = formData;
+      const { routineName, routineDescription, skinType } = formData;
 
       if (!routineName || !routineDescription || !skinType) {
         return Promise.reject({
@@ -27,7 +27,6 @@ module.exports = {
         routineName,
         routineDescription,
         skinType,
-        steps: steps || [],
       });
       addRoutineToSkinType(skinType, newRoutine._id);
       await newRoutine.populate({ path: "steps", populate: { path: "productIds" } });
@@ -155,14 +154,13 @@ module.exports = {
       }
 
       const routines = await Routine.find({ skinType: skinTypeId })
-        .populate("skinType")
         .populate({
           path: "steps",
           populate: {
-            path: "productIds"
+            path: "products"
           }
         });
-
+        console.log(routines)
       return {
         status: 200,
         ok: true,

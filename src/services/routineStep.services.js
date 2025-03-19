@@ -5,7 +5,7 @@ const routineService = require("./routine.service");
 module.exports = {
   create: async (formData) => {
     try {
-      const { stepName, stepNumber, stepDescription, routine, productIds } = formData;
+      const { stepName, stepNumber, stepDescription, routine, products } = formData;
 
       // Kiểm tra đầu vào
       if (!stepName || !stepNumber || !stepDescription) {
@@ -50,10 +50,10 @@ module.exports = {
         stepNumber,
         stepDescription,
         routine,
-        productIds,
+        products,
       });
       await routineService.update(routine, { $push: { steps: newStep._id } });
-      await newStep.populate("productIds");
+      await newStep.populate("products");
       return {
         status: 201,
         ok: true,
@@ -70,7 +70,7 @@ module.exports = {
     }
   },
   getAll: async () => {
-    const steps = await RoutineStep.find().populate("productIds");
+    const steps = await RoutineStep.find().populate("products");
     return steps;
   },
   getById: async (id) => {
@@ -82,7 +82,7 @@ module.exports = {
       };
     }
 
-    const step = await RoutineStep.findById(id).populate("productIds");
+    const step = await RoutineStep.findById(id).populate("products");
     if (!step) {
       throw { 
         status: 404, 
@@ -117,7 +117,7 @@ module.exports = {
       const updatedStep = await RoutineStep.findByIdAndUpdate(id, formData, {
         new: true, // Trả về dữ liệu sau khi cập nhật
         runValidators: true, // Kiểm tra điều kiện validation trong model
-      }).populate("productIds");
+      }).populate("products");
 
       return {
         status: 200,
