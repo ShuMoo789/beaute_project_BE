@@ -29,7 +29,7 @@ module.exports = {
         skinType,
       });
       addRoutineToSkinType(skinType, newRoutine._id);
-      await newRoutine.populate({ path: "steps", populate: { path: "productIds" } });
+      await newRoutine.populate({ path: "steps", populate: { path: "products" } });
       return {
         status: 201,
         ok: true,
@@ -46,7 +46,7 @@ module.exports = {
   },
 
   getAll: async () => {
-    return await Routine.find().populate("skinType").populate({ path: "steps", populate: { path: "productIds" } });
+    return await Routine.find().populate("skinType").populate({ path: "steps", populate: { path: "products" } });
   },
 
   getById: async (id) => {
