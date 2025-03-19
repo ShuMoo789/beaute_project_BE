@@ -30,8 +30,8 @@ module.exports = {
       const skip = (page - 1) * pageSize;
   
       // Fetch paginated products with filters, sorted by priority descending
-      const products = await Product.find(filters)
-        .sort({ priority: -1, rating: -1 }) // Sort priority true first
+      const products = await Product.find({ ...filters, expiredDate: { $gte: new Date() } })
+        .sort({ priority: -1, rating: -1, expiredDate: 1 }) // Sort priority true first
         .populate('skinTypeId', '_id, type')
         .populate('category')
         .skip(skip)

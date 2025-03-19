@@ -73,6 +73,9 @@ const productSchema = new mongoose.Schema({
     min: 0,
     max: 5
   },
+  expiredDate: {
+    type: Date
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model("Product", productSchema);
