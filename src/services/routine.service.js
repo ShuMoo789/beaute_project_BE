@@ -29,7 +29,14 @@ module.exports = {
         skinType,
       });
       addRoutineToSkinType(skinType, newRoutine._id);
-      await newRoutine.populate({ path: "steps", populate: { path: "products" } });
+      await newRoutine.populate({
+        path: "steps",
+        match: { $nor: [{ status: "inactive" }, { priority: "low" }] }, 
+        populate: {
+          path: "products",
+          match: { $nor: [{ category: "expired" }, { stock: 0 }] }, 
+        },
+      });
       return {
         status: 201,
         ok: true,

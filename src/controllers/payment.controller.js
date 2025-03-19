@@ -81,14 +81,14 @@ module.exports = {
       if (result.data.return_code === 1) {
         await orderModel.findOneAndUpdate(
           { appTransId },
-          { status: "Completed" },
+          { status: "Paid" },
           { new: true }
         );
         return res.json(result.data);
       } else if (result.data.return_code === 2) {
         await orderModel.findOneAndUpdate(
           { appTransId },
-          { status: "Rejected" },
+          { status: "Cancel" },
           { new: true }
         );
         return res.json(result.data);
