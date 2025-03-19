@@ -12,12 +12,22 @@ const orderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["Pending", "Approved", "Rejected", "Completed"],
+      enum: [
+        "Pending",
+        "Approved",
+        "Shipping",
+        "Paid",
+        "Completed",
+        "Cancel",
+      ],
       default: "Pending",
     },
     orderDate: {
       type: Date,
       default: Date.now,
+    },
+    reasonCancel: {
+      type: String,
     },
     products: [
       {

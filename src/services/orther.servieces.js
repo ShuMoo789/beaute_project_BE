@@ -152,6 +152,63 @@ module.exports = {
     }
   },
 
+  // Customer hủy Đơn hàng
+  updateCancelOrder: async (orderId, cancelReason) => {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(orderId)) {
+        throw {
+          status: 400,
+          ok: false,
+          message: "ID đơn hàng không hợp lệ",
+        };
+      }
+
+      // Tìm đơn hàng trước khi cập nhật
+      const order = await orderModel.findById(orderId);
+      if (!order) {
+        throw {
+          status: 404,
+          ok: false,
+          message: "Không tìm thấy đơn hàng",
+        };
+      }
+      if (order.status === "Cancel") {
+        throw {
+          status: 400,
+          ok: false,
+          message: "Đơn hàng của bạn đã bị hủy trước đó",
+        };
+      }
+
+      // Kiểm tra trạng thái trước khi hủy
+      if (order.status !== "Pending") {
+        throw {
+          status: 400,
+          ok: false,
+          message: "Đơn hàng của bạn không thể hủy",
+        };
+      }
+
+      // Tiến hành cập nhật trạng thái hủy
+      order.status = "Cancel";
+      order.reasonCancel = cancelReason;
+      await order.save(); // Lưu lại thay đổi
+      return {
+        status: 200,
+        ok: true,
+        message: "Hủy đơn thành công",
+        orderCancel: order,
+      };
+    } catch (error) {
+      throw {
+        status: error.status || 500,
+        ok: false,
+        message: error.message || "Lỗi hệ thống",
+      };
+    }
+  },
+
+  // Lấy thông tin đơn hàng theo trạng thái
   getOrderByStatus: async (customerId, status = null) => {
     try {
       // Kiểm tra ObjectId hợp lệ
@@ -175,7 +232,7 @@ module.exports = {
         query.status = status;
       }
       const orders = await orderModel.find(query).lean();
-  
+
       // Nếu không có đơn hàng nào
       if (!orders.length) {
         return {
