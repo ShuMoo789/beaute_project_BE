@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const RoutineStep = require("../models/routineStep.model");
+const routineService = require("./routine.service");
 
 module.exports = {
   create: async (formData) => {
@@ -51,6 +52,7 @@ module.exports = {
         routine,
         productIds,
       });
+      await routineService.update(routine, { $push: { steps: newStep._id } });
       await newStep.populate("productIds");
       return {
         status: 201,
