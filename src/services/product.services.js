@@ -58,8 +58,8 @@ module.exports = {
     try {
       return await Product.findById(id)
         .populate('skinTypeId', '_id, type')
-        .populate('stepRoutineId')
     } catch (error) {
+      console.log(error)
       throw { status: 500, message: "Failed to retrieve product" };
     }
   },
