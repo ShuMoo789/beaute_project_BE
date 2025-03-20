@@ -18,12 +18,11 @@ const skinSchema = new Schema(
     description: {
       type: String,
     },
-    routines: [
+    routines:
       {
         type: Schema.Types.ObjectId,
         ref: "Routine", // Links to Routine model
       },
-    ],
     pointMin: {
       type: Number,
       required: true, // Minimum points required to fall into this skin type

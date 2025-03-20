@@ -153,7 +153,7 @@ module.exports = {
         });
       }
 
-      const routines = await Routine.find({ skinType: skinTypeId })
+      const routines = await Routine.findOne({ skinType: skinTypeId })
         .populate({
           path: "steps",
           populate: {
