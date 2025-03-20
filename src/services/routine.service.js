@@ -161,11 +161,7 @@ module.exports = {
           }
         });
         console.log(routines)
-      return {
-        status: 200,
-        ok: true,
-        routines,
-      };
+      return routines;
     } catch (error) {
       return Promise.reject({
         status: 500,
