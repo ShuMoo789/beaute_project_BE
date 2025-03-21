@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Routine = require("../models/routine.model");
 const { addRoutineToSkinType } = require("./skinType.services");
+const routineStepServices = require("./routineStep.services");
 
 module.exports = {
   create: async (formData) => {
@@ -95,10 +96,32 @@ module.exports = {
         });
       }
 
-      const updatedRoutine = await Routine.findByIdAndUpdate(id, formData, {
+      const updatedRoutine = await Routine.findByIdAndUpdate(id, {
+        ...
+        formData,
+        steps: formData.steps ? formData.steps.map(step => step._id) : [],
+      }, {
         new: true,
         runValidators: true,
       });
+
+      // Update steps if provided
+      if (formData.steps) {
+        for (const step of formData.steps) {
+          if (!step._id) {
+            // If step doesn't have _id, it means it's a new step, create new step
+            const newStep = await routineStepServices.create({
+              stepName: step.stepName,
+              stepNumber: step.stepNumber,
+              stepDescription: step.stepDescription,
+              routine: id,
+              products: step.products,
+            });
+            updatedRoutine.steps.push(new mongoose.Types.ObjectId(newStep._id));
+            updatedRoutine.save();
+          }
+        }
+      }
 
       return {
         status: 200,
@@ -107,6 +130,7 @@ module.exports = {
         routine: updatedRoutine,
       };
     } catch (error) {
+      console.log(error)
       return Promise.reject({
         status: 500,
         ok: false,
