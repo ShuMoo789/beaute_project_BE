@@ -266,4 +266,32 @@ module.exports = {
       });
     }
   },
+  getOrderByStatusDashboard: async (status = null) => {
+    try {
+      console.log({ status });
+      const orders = await orderModel.find({ status });
+      console.log({ orders });
+      // Nếu không có đơn hàng nào
+      if (!orders.length) {
+        return {
+          ok: true,
+          status: 200,
+          message: "Không tìm thấy đơn hàng có trạng thái trên",
+        };
+      }
+
+      return {
+        ok: true,
+        status: 200,
+        message: "Lấy đơn hàng theo trạng thái thành công",
+        data: orders,
+      };
+    } catch (error) {
+      return Promise.reject({
+        status: error.status || 500,
+        ok: false,
+        message: error.message || "Lỗi hệ thống khi lấy đơn hàng!",
+      });
+    }
+  },
 };

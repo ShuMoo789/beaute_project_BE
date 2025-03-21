@@ -7,4 +7,8 @@ orderRoute.get("/getAllOrder", orderController.getAllOrder);
 orderRoute.get("/getOrderById/:orderId", orderController.getOrderById);
 orderRoute.get("/getOrderByStatus", orderController.getOrderByStatus);
 orderRoute.put("/updateOrderCancel", orderController.putOrderByCancel);
+orderRoute.get(
+  "/getOrderStatusDashboard",
+  orderController.getOrderByStatusDashboard
+);
 module.exports = orderRoute;
