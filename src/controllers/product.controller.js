@@ -27,8 +27,7 @@ module.exports = {
 
     // Get all products with optional filters
     getAll: async (req, res) => {
-        const filters = req.query; // Get all query parameters as filters
-        const { page = 1, pageSize = 58 } = req.query; // Assuming pagination is passed as query parameters
+        const { page = 1, pageSize = 58, ...filters } = req.query; // Extract page and pageSize from query parameters and use the rest as filters
 
         try {
             const data = await productServices.getAll(filters, page, pageSize);
@@ -48,6 +47,7 @@ module.exports = {
             }
             return res.json(data);
         } catch (error) {
+            console.log(error)
             return res.status(error.status || 500).json({ message: error.message });
         }
     },
