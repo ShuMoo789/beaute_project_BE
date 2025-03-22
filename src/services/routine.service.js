@@ -1,11 +1,10 @@
 const mongoose = require("mongoose");
 const Routine = require("../models/routine.model");
-const { addRoutineToSkinType } = require("./skinType.services");
 
 module.exports = {
   create: async (formData) => {
     try {
-      const { routineName, routineDescription, skinType } = formData;
+      const { routineName, routineDescription, skinType, steps } = formData;
 
       if (!routineName || !routineDescription || !skinType) {
         return Promise.reject({
@@ -27,9 +26,9 @@ module.exports = {
         routineName,
         routineDescription,
         skinType,
+        steps,
       });
-      addRoutineToSkinType(skinType, newRoutine._id);
-      await newRoutine.populate({ path: "steps", populate: { path: "products" } });
+
       return {
         status: 201,
         ok: true,
@@ -46,7 +45,7 @@ module.exports = {
   },
 
   getAll: async () => {
-    return await Routine.find().populate("skinType").populate({ path: "steps", populate: { path: "products" } });
+    return await Routine.find().populate("skinType").populate("steps.products");
   },
 
   getById: async (id) => {
@@ -58,7 +57,7 @@ module.exports = {
       };
     }
 
-    const routine = await Routine.findById(id).populate("skinType").populate("steps");
+    const routine = await Routine.findById(id).populate("skinType").populate("steps.products");
     if (!routine) {
       throw {
         status: 404,
@@ -88,7 +87,10 @@ module.exports = {
         });
       }
 
-      const updatedRoutine = await Routine.findByIdAndUpdate(id, formData, {
+      const updatedRoutine = await Routine.findByIdAndUpdate(id, {
+        ...formData,
+        steps: formData.steps || existingRoutine.steps,
+      }, {
         new: true,
         runValidators: true,
       });

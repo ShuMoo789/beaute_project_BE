@@ -20,7 +20,7 @@ module.exports = {
       pageSize = parseInt(pageSize);
   
       // Validate filter fields
-      const validFields = ['name', 'brand', 'category', 'price', 'skinTypeId', 'stepRoutineId', 'productDiscount', 'inventory', 'usageTime', 'origin', 'volume', 'rating', 'priority'];
+      const validFields = ['name', 'brand', 'category', 'price', 'skinTypeId', 'stepRoutineId', 'productDiscount', 'inventory', 'usageTime', 'origin', 'volume', 'rating', 'priority', 'expiredDate','_id'];
       const invalidFields = Object.keys(filters).filter(field => !validFields.includes(field));
       if (invalidFields.length > 0) {
         throw { status: 400, message: `Invalid filter fields: ${invalidFields.join(', ')}` };

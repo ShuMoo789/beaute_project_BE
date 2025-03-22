@@ -1,11 +1,14 @@
 const mongoose = require("mongoose");
 const User = require("../models/user.model");
 const orderModel = require("../models/order.model");
+const productModel = require("../models/product.model");
+const cartModel = require("../models/cart.model");
 
 module.exports = {
   // Tạo đơn hàng
   createOrder: async (customerId, products) => {
     try {
+      // Kiểm tra người dùng tồn tại
       const user = await User.findById(customerId);
       if (!user) {
         throw {
@@ -14,21 +17,78 @@ module.exports = {
           message: "Người dùng không tồn tại!",
         };
       }
-      const totalAmount = products.reduce(
-        (total, product) => total + product.price * product.quantity,
-        0
-      );
+
+      // Lấy danh sách productId từ products
+      const productIds = products.map((p) => p.productId);
+
+      // Lấy thông tin sản phẩm từ database
+      const dbProducts = await productModel.find({
+        _id: { $in: productIds },
+      });
+
+      if (!dbProducts.length) {
+        throw {
+          status: 404,
+          ok: false,
+          message: "Không tìm thấy sản phẩm!",
+        };
+      }
+
+      // Tạo map từ productId để lấy quantity dễ dàng
+      const productQuantityMap = products.reduce((acc, item) => {
+        acc[item.productId] = item.quantity;
+        return acc;
+      }, {});
+
+      // Xử lý từng sản phẩm để tính totalPriceAfterDiscount
+      const updatedProducts = dbProducts.map((product) => {
+        const quantity = productQuantityMap[product._id.toString()] || 1;
+        const discountPrice =
+          product.price * (1 - (product.productDiscount || 0) / 100);
+        const totalPriceAfterDiscount = discountPrice * quantity;
+        return {
+          productId: product._id,
+          image: product.image,
+          name: product.name,
+          price: product.price,
+          quantity,
+          productDiscount: product.productDiscount,
+          totalPriceAfterDiscount,
+        };
+      });
+
+      // Tính tổng số tiền đơn hàng
+      const totalAmount = updatedProducts.reduce((total, product) => {
+        return total + product.totalPriceAfterDiscount;
+      }, 0);
+
+      // Tạo đơn hàng mới
       const newOrder = await orderModel.create({
         customerId,
-        products,
+        products: updatedProducts,
         amount: totalAmount,
         status: "Pending",
       });
 
+      const cart = await cartModel.findOne({ customerId });
+      console.log(customerId);
+      if (!cart) {
+        return Promise.reject({
+          status: 404,
+          ok: false,
+          message: "Giỏ hàng không tồn tại",
+        });
+      }
+      // Lọc ra những sản phẩm không nằm trong danh sách cần xóa
+      cart.products = cart.products.filter(
+        (item) => !productIds.includes(item.productId.toString())
+      );
+      await cart.save();
+
       return {
         status: 200,
         ok: true,
-        message: "Tao order thanh cong",
+        message: "Tạo order thành công",
         data: newOrder,
       };
     } catch (error) {
@@ -92,6 +152,63 @@ module.exports = {
     }
   },
 
+  // Customer hủy Đơn hàng
+  updateCancelOrder: async (orderId, cancelReason) => {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(orderId)) {
+        throw {
+          status: 400,
+          ok: false,
+          message: "ID đơn hàng không hợp lệ",
+        };
+      }
+
+      // Tìm đơn hàng trước khi cập nhật
+      const order = await orderModel.findById(orderId);
+      if (!order) {
+        throw {
+          status: 404,
+          ok: false,
+          message: "Không tìm thấy đơn hàng",
+        };
+      }
+      if (order.status === "Cancel") {
+        throw {
+          status: 400,
+          ok: false,
+          message: "Đơn hàng của bạn đã bị hủy trước đó",
+        };
+      }
+
+      // Kiểm tra trạng thái trước khi hủy
+      if (order.status !== "Pending") {
+        throw {
+          status: 400,
+          ok: false,
+          message: "Đơn hàng của bạn không thể hủy",
+        };
+      }
+
+      // Tiến hành cập nhật trạng thái hủy
+      order.status = "Cancel";
+      order.reasonCancel = cancelReason;
+      await order.save(); // Lưu lại thay đổi
+      return {
+        status: 200,
+        ok: true,
+        message: "Hủy đơn thành công",
+        orderCancel: order,
+      };
+    } catch (error) {
+      throw {
+        status: error.status || 500,
+        ok: false,
+        message: error.message || "Lỗi hệ thống",
+      };
+    }
+  },
+
+  // Lấy thông tin đơn hàng theo trạng thái
   getOrderByStatus: async (customerId, status = null) => {
     try {
       // Kiểm tra ObjectId hợp lệ
@@ -100,7 +217,7 @@ module.exports = {
         error.status = 400;
         throw error;
       }
-  
+
       // Kiểm tra user tồn tại
       const user = await User.findById(customerId).lean();
       if (!user) {
@@ -108,21 +225,33 @@ module.exports = {
         error.status = 404;
         throw error;
       }
-  
+
       // Tìm đơn hàng theo customerId và status
       const query = { customerId };
       if (status) {
         query.status = status;
       }
       const orders = await orderModel.find(query).lean();
-  
+
       // Nếu không có đơn hàng nào
       if (!orders.length) {
-        const error = new Error("Không tìm thấy đơn hàng với trạng thái trên");
-        error.status = 404;
-        throw error;
+        return {
+          ok: true,
+          status: 200,
+          message: "Không tìm thấy đơn hàng có trạng thái trên",
+        };
       }
-  
+
+      // // Kiểm tra xem có đơn hàng nào với status tương ứng không
+      // const orderExists = orders.findIndex((order) => order.status === status);
+      // if (orderExists === -1) {
+      //   return {
+      //     ok: true,
+      //     status: 200,
+      //     message: "Không tìm thấy đơn hàng có trạng thái trên",
+      //   };
+      // }
+
       return {
         ok: true,
         status: 200,
@@ -130,7 +259,6 @@ module.exports = {
         data: orders,
       };
     } catch (error) {
-      console.error("Lỗi khi lấy đơn hàng theo trạng thái:", error);
       return Promise.reject({
         status: error.status || 500,
         ok: false,
@@ -138,5 +266,4 @@ module.exports = {
       });
     }
   },
-  
 };

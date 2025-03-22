@@ -3,6 +3,9 @@ const { Schema } = mongoose;
 
 const skinSchema = new Schema(
   {
+    img: {
+      type: String,
+    },
     type: {
       type: String,
       required: true,

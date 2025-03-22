@@ -59,12 +59,11 @@ module.exports = {
   // Xem thông tin giỏ hàng
   getCart: async (customerId) => {
     try {
-      // Tìm giỏ hàng của người dùng và populate thông tin sản phẩm
       const cart = await Cart.findOne({ customerId }).populate({
         path: "products.productId",
         select: "name price image productDiscount",
       });
-
+  
       if (!cart) {
         return {
           status: 404,
@@ -72,20 +71,20 @@ module.exports = {
           message: "Giỏ hàng không tồn tại",
         };
       }
-
-      // Tính tổng giá trị giỏ hàng
-      const totalPrice = cart.products.reduce((total, item) => {
+  
+      const validProducts = cart.products.filter(item => item.productId);
+      
+      const totalPrice = validProducts.reduce((total, item) => {
         const product = item.productId;
-        const priceAfterDiscount =
-          product.price * (1 - (product.productDiscount || 0) / 100);
+        const priceAfterDiscount = product.price * (1 - (product.productDiscount || 0) / 100);
         return total + priceAfterDiscount * item.quantity;
       }, 0);
-
+  
       return {
         status: 200,
         ok: true,
         data: {
-          products: cart.products.map((item) => ({
+          products: validProducts.map((item) => ({
             productId: item.productId._id,
             name: item.productId.name,
             image: item.productId.image,
@@ -104,7 +103,7 @@ module.exports = {
       });
     }
   },
-
+  
   // Cập nhật số lượng sản phẩm trong giỏ hàng
   updateProductQuantity: async (customerId, productId, quantity) => {
     try {

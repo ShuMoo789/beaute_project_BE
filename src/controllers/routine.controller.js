@@ -97,7 +97,7 @@ const routineController = {
     try {
       const { id } = req.params;
       const { routineName, routineDescription, skinType, steps } = req.body;
-
+      console.log("steps", steps);
       if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({
           ok: false,
