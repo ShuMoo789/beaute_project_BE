@@ -5,7 +5,6 @@ const quizAnswerRouter = require("./quizAnswer.route");
 const quizQuestionRouter = require("./quizQuestion.route");
 const skinTypeRouter = require("./skinType.route");
 const productRouter = require("./product.route");
-const routineStep = require("./routineStep.route");
 const routine = require("./routine.route");
 const cart = require("./cart.route");
 const paymemtRoute = require("./payment.route");
@@ -20,7 +19,6 @@ const initRoutes = (app) => {
   app.use("/api/quiz-answer", quizAnswerRouter);
   app.use("/api/skin-types", skinTypeRouter);
   app.use("/api/product", productRouter);
-  app.use("/api/routine-step", routineStep);
   app.use("/api/routine", routine);
   app.use("/api/cart", cart);
   app.use("/api/payment", paymemtRoute);

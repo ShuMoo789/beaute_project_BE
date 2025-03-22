@@ -1,12 +1,10 @@
 const mongoose = require("mongoose");
 const Routine = require("../models/routine.model");
-const { addRoutineToSkinType } = require("./skinType.services");
-const routineStepServices = require("./routineStep.services");
 
 module.exports = {
   create: async (formData) => {
     try {
-      const { routineName, routineDescription, skinType } = formData;
+      const { routineName, routineDescription, skinType, steps } = formData;
 
       if (!routineName || !routineDescription || !skinType) {
         return Promise.reject({
@@ -28,16 +26,9 @@ module.exports = {
         routineName,
         routineDescription,
         skinType,
+        steps,
       });
-      addRoutineToSkinType(skinType, newRoutine._id);
-      await newRoutine.populate({
-        path: "steps",
-        match: { $nor: [{ status: "inactive" }, { priority: "low" }] }, 
-        populate: {
-          path: "products",
-          match: { $nor: [{ category: "expired" }, { stock: 0 }] }, 
-        },
-      });
+
       return {
         status: 201,
         ok: true,
@@ -54,7 +45,7 @@ module.exports = {
   },
 
   getAll: async () => {
-    return await Routine.find().populate("skinType").populate({ path: "steps", populate: { path: "products" } });
+    return await Routine.find().populate("skinType").populate("steps.products");
   },
 
   getById: async (id) => {
@@ -66,7 +57,7 @@ module.exports = {
       };
     }
 
-    const routine = await Routine.findById(id).populate("skinType").populate("steps");
+    const routine = await Routine.findById(id).populate("skinType").populate("steps.products");
     if (!routine) {
       throw {
         status: 404,
@@ -97,31 +88,12 @@ module.exports = {
       }
 
       const updatedRoutine = await Routine.findByIdAndUpdate(id, {
-        ...
-        formData,
-        steps: formData.steps ? formData.steps.map(step => step._id) : [],
+        ...formData,
+        steps: formData.steps || existingRoutine.steps,
       }, {
         new: true,
         runValidators: true,
       });
-
-      // Update steps if provided
-      if (formData.steps) {
-        for (const step of formData.steps) {
-          if (!step._id) {
-            // If step doesn't have _id, it means it's a new step, create new step
-            const newStep = await routineStepServices.create({
-              stepName: step.stepName,
-              stepNumber: step.stepNumber,
-              stepDescription: step.stepDescription,
-              routine: id,
-              products: step.products,
-            });
-            updatedRoutine.steps.push(new mongoose.Types.ObjectId(newStep._id));
-            updatedRoutine.save();
-          }
-        }
-      }
 
       return {
         status: 200,
@@ -130,7 +102,6 @@ module.exports = {
         routine: updatedRoutine,
       };
     } catch (error) {
-      console.log(error)
       return Promise.reject({
         status: 500,
         ok: false,
