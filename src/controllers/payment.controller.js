@@ -81,21 +81,21 @@ module.exports = {
       if (result.data.return_code === 1) {
         await orderModel.findOneAndUpdate(
           { appTransId },
-          { status: "Paid" },
+          { isPaid: true },
           { new: true }
         );
         return res.json(result.data);
       } else if (result.data.return_code === 2) {
         await orderModel.findOneAndUpdate(
           { appTransId },
-          { status: "Cancel" },
+          { isPaid: false },
           { new: true }
         );
         return res.json(result.data);
       } else if (result.data.return_code === 3) {
         await orderModel.findOneAndUpdate(
           { appTransId },
-          { status: "Pending" },
+          { isPaid: false },
           { new: true }
         );
         return res.json(result.data);

@@ -103,7 +103,7 @@ module.exports = {
   // Lấy thông tin đơn hàng
   getAllOrder: async () => {
     try {
-      const orders = await orderModel.find();
+      const orders = await orderModel.find().populate("customerId", "-avatar");
       return {
         status: 200,
         ok: true,
@@ -129,7 +129,7 @@ module.exports = {
           message: "ID đơn hàng không hợp lệ",
         };
       }
-      const order = await orderModel.findById(orderId);
+      const order = await orderModel.findById(orderId).populate("customerId");
       if (!order) {
         throw {
           status: 404,
@@ -138,9 +138,6 @@ module.exports = {
         };
       }
       return {
-        status: 200,
-        ok: true,
-        message: "Lấy thông tin đơn hàng thành công",
         order,
       };
     } catch (error) {
@@ -269,7 +266,9 @@ module.exports = {
   getOrderByStatusDashboard: async (status = null) => {
     try {
       console.log({ status });
-      const orders = await orderModel.find({ status });
+      const orders = await orderModel
+        .find({ status })
+        .populate("customerId", "-avatar");
       console.log({ orders });
       // Nếu không có đơn hàng nào
       if (!orders.length) {
