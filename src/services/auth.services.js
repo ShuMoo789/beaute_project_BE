@@ -145,8 +145,8 @@ module.exports = {
             status: 400,
           });
         }
-
-        const user = await User.findById(id).select("-password");
+        console.log(user)
+        const user = await User.findById(id).populate("skinType").select("-password");
         if (!user) {
           return reject({
             message: "Không tìm thấy người dùng",

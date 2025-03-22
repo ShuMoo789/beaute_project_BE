@@ -40,6 +40,10 @@ const routineSchema = new Schema(
         }],
       }
     ],
+    active: {
+      type: Boolean,
+      default: false
+    }
   },
   {
     versionKey: false,

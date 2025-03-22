@@ -96,8 +96,7 @@ const routineController = {
   update: async (req, res) => {
     try {
       const { id } = req.params;
-      const { routineName, routineDescription, skinType, steps } = req.body;
-      console.log("steps", steps);
+      const formData = req.body;
       if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({
           ok: false,
@@ -105,19 +104,11 @@ const routineController = {
         });
       }
 
-      const updatedRoutine = await routineService.update(id, {
-        routineName,
-        routineDescription,
-        skinType,
-        steps: steps || undefined, // Only update steps if provided
-      });
+      const updatedRoutine = await routineService.update(id, formData);
 
-      return res.status(200).json({
-        ok: true,
-        message: "Cập nhật Routine thành công",
-        routine: updatedRoutine,
-      });
+      return res.status(200).json(updatedRoutine);
     } catch (error) {
+      console.log(error)
       return res.status(500).json({
         ok: false,
         message: error.message || "Lỗi hệ thống",

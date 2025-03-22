@@ -87,6 +87,24 @@ module.exports = {
         });
       }
 
+      // Check if the routine is being set to active
+      if (formData.active && formData.active === true) {
+        // Check for other active routines with the same skinType
+        const activeRoutine = await Routine.findOne({
+          skinType: existingRoutine.skinType,
+          active: true,
+          _id: { $ne: id } // Exclude the current routine from the check
+        });
+
+        if (activeRoutine) {
+          return Promise.reject({
+            status: 400,
+            ok: false,
+            message: "Đã có một routine khác đang hoạt động cho loại da này.",
+          });
+        }
+      }
+
       const updatedRoutine = await Routine.findByIdAndUpdate(id, {
         ...formData,
         steps: formData.steps || existingRoutine.steps,
@@ -94,14 +112,15 @@ module.exports = {
         new: true,
         runValidators: true,
       });
-
+      console.log(updatedRoutine)
       return {
         status: 200,
         ok: true,
         message: "Cập nhật Routine thành công",
-        routine: updatedRoutine,
+        data: updatedRoutine,
       };
     } catch (error) {
+      console.log(error)
       return Promise.reject({
         status: 500,
         ok: false,
@@ -155,14 +174,20 @@ module.exports = {
         });
       }
 
-      const routines = await Routine.findOne({ skinType: skinTypeId })
-        .populate({
-          path: "steps",
-          populate: {
-            path: "products"
-          }
+      const routines = await Routine.findOne({ 
+        skinType: skinTypeId,
+        active: true
+      })
+      .populate({
+        path: 'steps.products'
+      });
+      if (!routines) {
+        return Promise.resolve({
+          status: 200,
+          ok: false,
+          message: "Không có routine cho loại da này hiện đang được active",
         });
-        console.log(routines)
+      }
       return routines;
     } catch (error) {
       return Promise.reject({

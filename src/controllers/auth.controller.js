@@ -58,7 +58,7 @@ module.exports = {
         });
       }
 
-      const user = await userModel.findById(id);
+      const user = await userModel.findById(id).populate('skinType').select('-password');
 
       if (!user) {
         return res.status(404).json({

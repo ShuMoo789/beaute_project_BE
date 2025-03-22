@@ -123,10 +123,14 @@ module.exports = {
   // Get products by product discount range
   getByProductDiscountRange: async (minDiscount, maxDiscount) => {
     try {
+      console.log(Product.find({
+        productDiscount: { $gte: minDiscount, $lte: maxDiscount }
+      }).populate('category'))
       return await Product.find({
         productDiscount: { $gte: minDiscount, $lte: maxDiscount }
       }).populate('category');
     } catch (error) {
+      console.log(error)
       throw { status: 500, message: "Failed to retrieve products by discount range" };
     }
   }
