@@ -5,7 +5,7 @@ const authRouter = express.Router();
 authRouter.post("/register", authController.register);
 authRouter.post("/login", authController.login);
 authRouter.get("/getAllUser", authController.getAllUser);
-authRouter.get("/getUserById/:id", authController.getUserById);
-authRouter.put("/updateUser/:id", authController.updateById);
+authRouter.get("/getUserById", authController.getUserById);
+authRouter.put("/updateUser", authController.updateById);
 
 module.exports = authRouter;

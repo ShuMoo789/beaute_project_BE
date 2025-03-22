@@ -116,7 +116,7 @@ const orderController = {
   putStatusOrderById: async (req, res) => {
     try {
       const { orderId } = req.params;
-      const { status } = req.body;
+      const { status } = req.query;
       const orders = await OrderService.updateStatusOrderById(orderId, status);
       return res.status(200).json({
         ok: true,

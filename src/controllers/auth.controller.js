@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { jwtDecode } = require("jwt-decode");
 const userModel = require("../models/user.model");
 const authServices = require("../services/auth.services");
 
@@ -49,17 +50,13 @@ module.exports = {
   },
   getUserById: async (req, res) => {
     try {
-      const { id } = req.params;
-
-      if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({
-          ok: false,
-          message: "ID không hợp lệ",
-        });
-      }
-
-      const user = await userModel.findById(id).populate('skinType').select('-password');
-
+      const bearerToken = req.headers.authorization;
+      const token = bearerToken.split(" ")[1];
+      const customerId = jwtDecode(token).id;
+      const user = await userModel
+        .findById(customerId)
+        .populate("skinType")
+        .select("-password");
       if (!user) {
         return res.status(404).json({
           ok: false,
@@ -80,18 +77,13 @@ module.exports = {
   },
   updateById: async (req, res) => {
     try {
-      const { id } = req.params;
+      const bearerToken = req.headers.authorization;
+      const token = bearerToken.split(" ")[1];
+      const customerId = jwtDecode(token).id;
       const { name, phone, email, avatar } = req.body;
 
-      if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({
-          ok: false,
-          message: "ID không hợp lệ",
-        });
-      }
-
       const updatedUser = await userModel.findByIdAndUpdate(
-        id,
+        customerId,
         { name, phone, email, avatar },
         {
           new: true,
