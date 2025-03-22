@@ -205,6 +205,70 @@ module.exports = {
     }
   },
 
+  // staff cập nhật đơn hàng
+  updateStatusOrderById: async (orderId, status) => {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(orderId)) {
+        throw {
+          status: 400,
+          ok: false,
+          message: "ID đơn hàng không hợp lệ",
+        };
+      }
+
+      // Danh sách trạng thái hợp lệ
+      const validStatuses = [
+        "Pending",
+        "Approved",
+        "Shipping",
+        "Completed",
+        "Cancel",
+      ];
+      if (!validStatuses.includes(status)) {
+        throw {
+          status: 400,
+          ok: false,
+          message: "Trạng thái không hợp lệ",
+        };
+      }
+
+      // Tìm đơn hàng trước khi cập nhật
+      const order = await orderModel.findById(orderId);
+      if (!order) {
+        throw {
+          status: 404,
+          ok: false,
+          message: "Không tìm thấy đơn hàng",
+        };
+      }
+
+      if (status === order.status) {
+        throw {
+          status: 400,
+          ok: false,
+          message: `Trạng thái hiện tại đã là ${status}`,
+        };
+      }
+
+      // Cập nhật trạng thái
+      order.status = status;
+      await order.save();
+
+      return {
+        status: 200,
+        ok: true,
+        message: "Đổi trạng thái đơn hàng thành công",
+        order,
+      };
+    } catch (error) {
+      throw {
+        status: error.status || 500,
+        ok: false,
+        message: error.message || "Lỗi hệ thống",
+      };
+    }
+  },
+
   // Lấy thông tin đơn hàng theo trạng thái
   getOrderByStatus: async (customerId, status = null) => {
     try {
@@ -263,13 +327,12 @@ module.exports = {
       });
     }
   },
+
   getOrderByStatusDashboard: async (status = null) => {
     try {
-      console.log({ status });
       const orders = await orderModel
         .find({ status })
         .populate("customerId", "-avatar");
-      console.log({ orders });
       // Nếu không có đơn hàng nào
       if (!orders.length) {
         return {

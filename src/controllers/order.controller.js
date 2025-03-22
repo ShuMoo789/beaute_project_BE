@@ -112,6 +112,24 @@ const orderController = {
       });
     }
   },
+
+  putStatusOrderById: async (req, res) => {
+    try {
+      const { orderId } = req.params;
+      const { status } = req.body;
+      const orders = await OrderService.updateStatusOrderById(orderId, status);
+      return res.status(200).json({
+        ok: true,
+        status: 200,
+        orders,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        ok: false,
+        message: error.message || "Lỗi hệ thống khi lấy đơn hàng!",
+      });
+    }
+  },
 };
 
 module.exports = orderController;

@@ -11,4 +11,5 @@ orderRoute.get(
   "/getOrderStatusDashboard",
   orderController.getOrderByStatusDashboard
 );
+orderRoute.put("/updateStatusOrderById/:orderId", orderController.putStatusOrderById);
 module.exports = orderRoute;
