@@ -15,7 +15,7 @@ module.exports = {
     const { amount, orderId } = req.body;
     const items = [{}];
     const embed_data = {
-      redirectUrl: "http://localhost:3000/test",
+      redirectUrl: "http://localhost:5173/", //fe
     };
     const transID = Math.floor(Math.random() * 1000000);
     const app_trans_id = `${moment().format("YYMMDD")}_${transID}`;
@@ -29,7 +29,7 @@ module.exports = {
       amount: amount,
       description: `BeautiSkincare - Payment for the order #${transID}`,
       bank_code: "zalopayapp",
-      callBack_url: "http://localhost:8080/api/payment/callback",
+      callBack_url: "http://localhost:8080/api/payment/callback", //be
     };
     const data =
       config.app_id +
@@ -81,21 +81,21 @@ module.exports = {
       if (result.data.return_code === 1) {
         await orderModel.findOneAndUpdate(
           { appTransId },
-          { status: "Paid" },
+          { isPaid: true },
           { new: true }
         );
         return res.json(result.data);
       } else if (result.data.return_code === 2) {
         await orderModel.findOneAndUpdate(
           { appTransId },
-          { status: "Cancel" },
+          { isPaid: false },
           { new: true }
         );
         return res.json(result.data);
       } else if (result.data.return_code === 3) {
         await orderModel.findOneAndUpdate(
           { appTransId },
-          { status: "Pending" },
+          { isPaid: false },
           { new: true }
         );
         return res.json(result.data);

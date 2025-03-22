@@ -16,7 +16,6 @@ const orderSchema = new mongoose.Schema(
         "Pending",
         "Approved",
         "Shipping",
-        "Paid",
         "Completed",
         "Cancel",
       ],
@@ -50,6 +49,7 @@ const orderSchema = new mongoose.Schema(
       },
     ],
     appTransId: { type: String },
+    isPaid: {type: Boolean, default: false},
   },
   {
     versionKey: false,

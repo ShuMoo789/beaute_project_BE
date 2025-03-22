@@ -75,10 +75,49 @@ const orderController = {
     }
   },
 
+  getOrderByStatusDashboard: async (req, res) => {
+    try {
+      const { status } = req.query;
+      const orders = await OrderService.getOrderByStatusDashboard(status);
+      return res.status(200).json({
+        ok: true,
+        status: 200,
+        message: "Lấy danh sách đơn hàng thành công",
+        orders,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        ok: false,
+        message: error.message || "Lỗi hệ thống khi lấy đơn hàng!",
+      });
+    }
+  },
+
   putOrderByCancel: async (req, res) => {
     try {
       const { orderId, cancelReason } = req.body;
-      const orders = await OrderService.updateCancelOrder( orderId, cancelReason);
+      const orders = await OrderService.updateCancelOrder(
+        orderId,
+        cancelReason
+      );
+      return res.status(200).json({
+        ok: true,
+        status: 200,
+        orders,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        ok: false,
+        message: error.message || "Lỗi hệ thống khi lấy đơn hàng!",
+      });
+    }
+  },
+
+  putStatusOrderById: async (req, res) => {
+    try {
+      const { orderId } = req.params;
+      const { status } = req.body;
+      const orders = await OrderService.updateStatusOrderById(orderId, status);
       return res.status(200).json({
         ok: true,
         status: 200,
