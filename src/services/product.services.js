@@ -51,6 +51,44 @@ module.exports = {
       throw { status: error.status || 500, message: error.message || "Failed to retrieve products" };
     }
   },
+  getAllDashboard: async (filters = {}, page = 1, pageSize = 58) => {
+    try {
+      // Convert page & pageSize to numbers
+      page = parseInt(page);
+      pageSize = parseInt(pageSize);
+  
+      // Validate filter fields
+      const validFields = ['name', 'brand', 'category', 'price', 'skinTypeId', 'stepRoutineId', 'productDiscount', 'inventory', 'usageTime', 'origin', 'volume', 'rating', 'priority', 'expiredDate','_id'];
+      const invalidFields = Object.keys(filters).filter(field => !validFields.includes(field));
+      if (invalidFields.length > 0) {
+        throw { status: 400, message: `Invalid filter fields: ${invalidFields.join(', ')}` };
+      }
+  
+      // Calculate offset
+      const skip = (page - 1) * pageSize;
+  
+      // Fetch paginated products with filters, sorted by priority descending
+      const products = await Product.find({ ...filters, expiredDate: { $gte: new Date() } })
+        .sort({ priority: -1, rating: -1, expiredDate: 1 }) // Sort priority true first
+        .populate('skinTypeId', '_id, type')
+        .populate('category')
+        .skip(skip)
+        .limit(pageSize);
+  
+      // Get total count of products
+      const totalItem = await Product.countDocuments(filters);
+  
+      return {
+        totalItem,
+        page,
+        pageSize,
+        totalPages: Math.ceil(totalItem / pageSize),
+        data: products,
+      };
+    } catch (error) {
+      throw { status: error.status || 500, message: error.message || "Failed to retrieve products" };
+    }
+  },
 
 
   // Get a single product by ID

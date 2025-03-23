@@ -1,3 +1,4 @@
+const { jwtDecode } = require("jwt-decode");
 const productServices = require("../services/product.services");
 
 module.exports = {
@@ -27,11 +28,20 @@ module.exports = {
 
     // Get all products with optional filters
     getAll: async (req, res) => {
+        const bearerToken = req.headers.authorization;
+        const token = bearerToken.split(" ")[1];
+        const role = jwtDecode(token).role;
         const { page = 1, pageSize = 58, ...filters } = req.query; // Extract page and pageSize from query parameters and use the rest as filters
-
+        console.log(role)
         try {
-            const data = await productServices.getAll(filters, page, pageSize);
-            return res.json(data);
+            if (role.includes('customer')) {
+                const data = await productServices.getAll(filters, page, pageSize);
+                return res.json(data);
+            } else {
+                const data = await productServices.getAllDashboard(filters, page, pageSize);
+                return res.json(data);
+            }
+
         } catch (error) {
             return res.status(error.status || 500).json({ message: error.message });
         }
