@@ -28,12 +28,15 @@ module.exports = {
 
     // Get all products with optional filters
     getAll: async (req, res) => {
-        const bearerToken = req.headers.authorization;
-        const token = bearerToken.split(" ")[1];
-        const role = jwtDecode(token).role;
-        const { page = 1, pageSize = 58, ...filters } = req.query; // Extract page and pageSize from query parameters and use the rest as filters
-        console.log(role)
         try {
+            const bearerToken = req.headers.authorization;
+            if (!bearerToken) {
+                const data = await productServices.getAll(req.query, 1, 58);
+                return res.json(data);
+            }
+            const token = bearerToken.split(" ")[1];
+            const role = jwtDecode(token).role;
+            const { page = 1, pageSize = 58, ...filters } = req.query; // Extract page and pageSize from query parameters and use the rest as filters
             if (role.includes('customer')) {
                 const data = await productServices.getAll(filters, page, pageSize);
                 return res.json(data);
