@@ -38,8 +38,7 @@ module.exports = {
         .limit(pageSize);
   
       // Get total count of products
-      const totalItem = await Product.countDocuments(filters);
-  
+      const totalItem = await Product.countDocuments({ ...filters, active: true });
       return {
         totalItem,
         page,
