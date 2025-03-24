@@ -75,6 +75,33 @@ module.exports = {
       });
     }
   },
+  getUserInfor: async (req, res) => {
+    try {
+      const bearerToken = req.headers.authorization;
+      const token = bearerToken.split(" ")[1];
+      const customerId = jwtDecode(token).id;
+      const user = await userModel
+        .findById(customerId)
+        .populate("skinType")
+        .select("-password");
+      if (!user) {
+        return res.status(404).json({
+          ok: false,
+          message: "Không tìm thấy Routine",
+        });
+      }
+
+      return res.status(200).json({
+        ok: true,
+        user,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        ok: false,
+        message: error.message || "Lỗi hệ thống",
+      });
+    }
+  },
   updateById: async (req, res) => {
     try {
       const bearerToken = req.headers.authorization;
