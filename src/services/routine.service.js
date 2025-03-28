@@ -179,7 +179,10 @@ module.exports = {
         active: true
       })
       .populate({
-        path: 'steps.products'
+        path: 'steps.products',
+        populate: {
+          path: 'category'
+        }
       });
       if (!routines) {
         return Promise.resolve({
