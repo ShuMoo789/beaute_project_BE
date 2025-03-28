@@ -6,7 +6,7 @@ module.exports = {
   login: (formData) =>
     new Promise(async (resolve, reject) => {
       try {
-        const user = await User.findOne({ username: formData.username });
+        const user = await User.findOne({ username: formData.username }).populate('skinType');
 
         if (!user) {
           return reject({
