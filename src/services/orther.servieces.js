@@ -129,7 +129,9 @@ module.exports = {
           message: "ID đơn hàng không hợp lệ",
         };
       }
-      const order = await orderModel.findById(orderId).populate("customerId");
+      const order = await orderModel.findById(orderId).populate({path: "customerId", populate: {
+        path:'skinType'
+      }})
       if (!order) {
         throw {
           status: 404,
