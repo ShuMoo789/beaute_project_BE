@@ -10,6 +10,9 @@ const orderSchema = new mongoose.Schema(
     amount: {
       type: Number,
     },
+    address: {
+      type: String, 
+    },
     status: {
       type: String,
       enum: [
