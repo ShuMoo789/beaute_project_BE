@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const { jwtDecode } = require("jwt-decode");
-const OrderService = require("../services/orther.servieces");
+const OrderService = require("../services/order.servieces");
 
 const orderController = {
   createOrder: async (req, res) => {
@@ -23,16 +23,17 @@ const orderController = {
 
   getAllOrder: async (req, res) => {
     try {
-      const orders = await OrderService.getAllOrder();
+      const { page = 1, pageSize = 10 } = req.query;
+      const result = await OrderService.getAllOrder(page, pageSize);
       return res.status(200).json({
         ok: true,
         message: "Lấy danh sách đơn hàng thành công",
-        orders,
+        data: result.data
       });
     } catch (error) {
       return res.status(500).json({
         ok: false,
-        message: error.message || "Lỗi hệ thống khi lấy đơn hàng!",
+        message: error.message || "Lỗi hệ thống khi lấy đơn hàng!"
       });
     }
   },
@@ -59,18 +60,26 @@ const orderController = {
       const bearerToken = req.headers.authorization;
       const token = bearerToken.split(" ")[1];
       const customerId = jwtDecode(token).id;
-      const { status } = req.query;
-      const orders = await OrderService.getOrderByStatus(customerId, status);
+      const { status, isPaid, page = 1, pageSize = 10 } = req.query;
+      
+      const result = await OrderService.getOrderByStatus(
+        customerId, 
+        status, 
+        isPaid,
+        page,
+        pageSize
+      );
+      
       return res.status(200).json({
         ok: true,
         status: 200,
         message: "Lấy danh sách đơn hàng thành công",
-        orders,
+        data: result.data
       });
     } catch (error) {
       return res.status(500).json({
         ok: false,
-        message: error.message || "Lỗi hệ thống khi lấy đơn hàng!",
+        message: error.message || "Lỗi hệ thống khi lấy đơn hàng!"
       });
     }
   },

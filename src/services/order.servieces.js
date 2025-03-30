@@ -101,20 +101,44 @@ module.exports = {
   },
 
   // Lấy thông tin đơn hàng
-  getAllOrder: async () => {
+  getAllOrder: async (page = 1, pageSize = 10) => {
     try {
-      const orders = await orderModel.find().populate("customerId", "-avatar");
+      // Convert page & pageSize to numbers
+      page = parseInt(page);
+      pageSize = parseInt(pageSize);
+
+      // Calculate skip value
+      const skip = (page - 1) * pageSize;
+
+      // Get total count of orders
+      const totalOrders = await orderModel.countDocuments();
+
+      // Get paginated orders
+      const orders = await orderModel
+        .find()
+        .populate("customerId", "-avatar")
+        .skip(skip)
+        .limit(pageSize);
+
       return {
         status: 200,
         ok: true,
         message: "Lấy danh sách đơn hàng thành công",
-        data: orders,
+        data: {
+          orders,
+          pagination: {
+            totalItems: totalOrders,
+            currentPage: page,
+            pageSize: pageSize,
+            totalPages: Math.ceil(totalOrders / pageSize)
+          }
+        }
       };
     } catch (error) {
       return Promise.reject({
         status: error.status || 500,
         ok: false,
-        message: error.message || "Lỗi hệ thống khi lấy đơn hàng!",
+        message: error.message || "Lỗi hệ thống khi lấy đơn hàng!"
       });
     }
   },
@@ -272,7 +296,7 @@ module.exports = {
   },
 
   // Lấy thông tin đơn hàng theo trạng thái
-  getOrderByStatus: async (customerId, status = null) => {
+  getOrderByStatus: async (customerId, status = null, isPaid = null, page = 1, pageSize = 10) => {
     try {
       // Kiểm tra ObjectId hợp lệ
       if (!mongoose.Types.ObjectId.isValid(customerId)) {
@@ -289,43 +313,67 @@ module.exports = {
         throw error;
       }
 
-      // Tìm đơn hàng theo customerId và status
+      // Convert pagination params to numbers
+      page = parseInt(page);
+      pageSize = parseInt(pageSize);
+      const skip = (page - 1) * pageSize;
+
+      // Build query
       const query = { customerId };
       if (status) {
         query.status = status;
       }
-      const orders = await orderModel.find(query).lean();
+      if (isPaid !== null) {
+        query.isPaid = isPaid;
+      }
 
-      // Nếu không có đơn hàng nào
+      // Get total count for pagination
+      const totalOrders = await orderModel.countDocuments(query);
+
+      // Get paginated orders
+      const orders = await orderModel
+        .find(query)
+        .skip(skip)
+        .limit(pageSize)
+        .lean();
+
+      // If no orders found
       if (!orders.length) {
         return {
           ok: true,
           status: 200,
-          message: "Không tìm thấy đơn hàng có trạng thái trên",
+          message: `Không tìm thấy đơn hàng có trạng thái trên với trạng thái thanh toán ${query.isPaid}`,
+          data: {
+            orders: [],
+            pagination: {
+              totalItems: 0,
+              currentPage: page,
+              pageSize: pageSize,
+              totalPages: 0
+            }
+          }
         };
       }
-
-      // // Kiểm tra xem có đơn hàng nào với status tương ứng không
-      // const orderExists = orders.findIndex((order) => order.status === status);
-      // if (orderExists === -1) {
-      //   return {
-      //     ok: true,
-      //     status: 200,
-      //     message: "Không tìm thấy đơn hàng có trạng thái trên",
-      //   };
-      // }
 
       return {
         ok: true,
         status: 200,
         message: "Lấy đơn hàng theo trạng thái thành công",
-        data: orders,
+        data: {
+          orders,
+          pagination: {
+            totalItems: totalOrders,
+            currentPage: page,
+            pageSize: pageSize,
+            totalPages: Math.ceil(totalOrders / pageSize)
+          }
+        }
       };
     } catch (error) {
       return Promise.reject({
         status: error.status || 500,
         ok: false,
-        message: error.message || "Lỗi hệ thống khi lấy đơn hàng!",
+        message: error.message || "Lỗi hệ thống khi lấy đơn hàng!"
       });
     }
   },
