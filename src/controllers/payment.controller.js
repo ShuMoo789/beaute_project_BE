@@ -3,6 +3,9 @@ const orderModel = require("../models/order.model");
 const moment = require("moment/moment");
 const CryptoJS = require("crypto-js");
 const qs = require("qs");
+// Import environment variables
+const { FE_REDIRECT_URL, CALLBACK_URL } = process.env;
+
 const config = {
   app_id: "2553",
   key1: "PcY4iZIKFCIdgZvA6ueMcMHHUbRLYjPL",
@@ -30,7 +33,7 @@ module.exports = {
       amount: amount,
       description: `BeautiSkincare - Payment for the order #${transID}`,
       bank_code: "zalopayapp",
-      callBack_url: "http://localhost:8080/api/payment/callback", //be
+      callBack_url: CALLBACK_URL, //be
     };
     const data =
       config.app_id +
