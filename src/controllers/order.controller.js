@@ -8,8 +8,12 @@ const orderController = {
       const bearerToken = req.headers.authorization;
       const token = bearerToken.split(" ")[1];
       const customerId = jwtDecode(token).id;
-      const { products } = req.body;
-      const newOrder = await OrderService.createOrder(customerId, products);
+      const { products, address } = req.body;
+      const newOrder = await OrderService.createOrder(
+        customerId,
+        products,
+        address
+      );
       return res
         .status(newOrder.status)
         .json({ data: newOrder.data, message: newOrder.message });

@@ -6,7 +6,7 @@ const cartModel = require("../models/cart.model");
 
 module.exports = {
   // Tạo đơn hàng
-  createOrder: async (customerId, products) => {
+  createOrder: async (customerId, products, address) => {
     try {
       // Kiểm tra người dùng tồn tại
       const user = await User.findById(customerId);
@@ -15,6 +15,15 @@ module.exports = {
           status: 400,
           ok: false,
           message: "Người dùng không tồn tại!",
+        };
+      }
+
+      // Kiểm tra xem người dùng có điền thông tin địa chỉ không
+      if (!address) {
+        throw {
+          status: 401,
+          ok: false,
+          message: "Không tìm thấy địa chỉ giao hànghàng",
         };
       }
 
@@ -67,6 +76,7 @@ module.exports = {
         customerId,
         products: updatedProducts,
         amount: totalAmount,
+        address: address,
         status: "Pending",
       });
 
@@ -129,9 +139,12 @@ module.exports = {
           message: "ID đơn hàng không hợp lệ",
         };
       }
-      const order = await orderModel.findById(orderId).populate({path: "customerId", populate: {
-        path:'skinType'
-      }})
+      const order = await orderModel.findById(orderId).populate({
+        path: "customerId",
+        populate: {
+          path: "skinType",
+        },
+      });
       if (!order) {
         throw {
           status: 404,
