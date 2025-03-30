@@ -18,8 +18,8 @@ module.exports = {
     const { amount, orderId } = req.body;
     const items = [{}];
     const embed_data = {
-      // redirectUrl: "http://localhost:5173/", //fe
-      redirectUrl: FE_REDIRECT_URL,
+      redirectUrl: "http://localhost:5173/", //fe
+      // redirectUrl: FE_REDIRECT_URL,
     };
     const transID = Math.floor(Math.random() * 1000000);
     const app_trans_id = `${moment().format("YYMMDD")}_${transID}`;
@@ -85,7 +85,10 @@ module.exports = {
       if (result.data.return_code === 1) {
         await orderModel.findOneAndUpdate(
           { appTransId },
-          { isPaid: true },
+          {
+            isPaid: true,
+            status: "Shipping",
+          },
           { new: true }
         );
         return res.json(result.data);
