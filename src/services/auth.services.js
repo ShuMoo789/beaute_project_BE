@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const User = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
@@ -6,7 +7,9 @@ module.exports = {
   login: (formData) =>
     new Promise(async (resolve, reject) => {
       try {
-        const user = await User.findOne({ username: formData.username }).populate('skinType');
+        const user = await User.findOne({
+          username: formData.username,
+        }).populate("skinType");
 
         if (!user) {
           return reject({
@@ -136,37 +139,6 @@ module.exports = {
       }
     }),
 
-  getById: (id) =>
-    new Promise(async (resolve, reject) => {
-      try {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-          return reject({
-            message: "ID không hợp lệ",
-            status: 400,
-          });
-        }
-        console.log(user)
-        const user = await User.findById(id).populate("skinType").select("-password");
-        if (!user) {
-          return reject({
-            message: "Không tìm thấy người dùng",
-            status: 404,
-          });
-        }
-
-        resolve({
-          ok: true,
-          status: 200,
-          user,
-        });
-      } catch (error) {
-        reject({
-          message: error?.message || "Lỗi hệ thống",
-          status: 500,
-        });
-      }
-    }),
-
   updateById: async (id, name, phone, email, avatar) => {
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -207,4 +179,5 @@ module.exports = {
       });
     }
   },
+  
 };

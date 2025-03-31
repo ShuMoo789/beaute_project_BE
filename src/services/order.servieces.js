@@ -23,7 +23,7 @@ module.exports = {
         throw {
           status: 401,
           ok: false,
-          message: "Không tìm thấy địa chỉ giao hànghàng",
+          message: "Không tìm thấy địa chỉ giao hàng",
         };
       }
 
@@ -416,6 +416,26 @@ module.exports = {
         status: error.status || 500,
         ok: false,
         message: error.message || "Lỗi hệ thống khi lấy đơn hàng!",
+      });
+    }
+  },
+
+  getByRole: async (req, res) => {
+    try {
+
+      const { role } = req.body;
+
+      const users = await authServices.getByRole(role);
+      
+      return res.status(200).json({
+        ok: true,
+        message: "Cập nhật Routine thành công",
+        data: users,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        ok: false,
+        message: error.message || "Lỗi hệ thống",
       });
     }
   },

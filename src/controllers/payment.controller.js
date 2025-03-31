@@ -62,6 +62,7 @@ module.exports = {
       return res.status(500).json({ message: "Internal server error" });
     }
   },
+  
   checkPayment: async (req, res) => {
     const { appTransId } = req.body;
     let postData = {
