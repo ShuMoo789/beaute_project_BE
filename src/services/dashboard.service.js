@@ -20,6 +20,7 @@ module.exports = {
       })
         .populate("products.productId", "name quantity") // Lấy thêm thông tin sản phẩm
         .sort({ orderDate: -1 }); // Sắp xếp theo thời gian mới nhất
+
       return {
         status: 200,
         ok: true,
@@ -35,7 +36,7 @@ module.exports = {
     }
   },
 
-  getOrderByDateAndStatus: async (startDate, endDate, status = null) => {
+  getOrderByDateAndStatus: async (startDate, endDate, status) => {
     try {
       // Chuyển đổi ngày bắt đầu và ngày kết thúc sang kiểu Date
       const start = new Date(startDate);
@@ -51,11 +52,13 @@ module.exports = {
       })
         .populate("products.productId", "name quantity") // Lấy thêm thông tin sản phẩm
         .sort({ orderDate: -1 }); // Sắp xếp theo thời gian mới nhất
+
+      const ordersQuantity = orders.length;
       return {
         status: 200,
         ok: true,
         message: "Lấy danh sách đơn hàng thành công",
-        data: orders,
+        quantity: ordersQuantity,
       };
     } catch (error) {
       throw {
@@ -66,30 +69,45 @@ module.exports = {
     }
   },
 
-  getAccountByRoleByDate: async (startDate, endDate, role) => {
+  getOrderIsPaidByDate: async (startDate, endDate, isPaid) => {
     try {
-      if (!role) {
-        throw {
-          status: 400,
-          message: "Thiếu thông tin vai trò (role)",
-        };
-      }
+      const start = new Date(startDate);
+      const end = new Date(endDate);
 
-      const validRoles = ["customer", "staff", "manager"];
-      if (!validRoles.includes(role)) {
-        throw {
-          status: 400,
-          message: "Vai trò không hợp lệ",
-        };
-      }
+      end.setHours(23, 59, 59, 999);
 
+      const orders = await Order.find({
+        orderDate: { $gte: start, $lte: end },
+        isPaid,
+      })
+        .populate("products.productId", "name quantity")
+        .sort({ orderDate: -1 });
+
+      const ordersQuantity = orders.length;
+      return {
+        status: 200,
+        ok: true,
+        message: "Lấy danh sách đơn hàng thành công",
+        quantity: ordersQuantity,
+      };
+    } catch (error) {
+      throw {
+        status: error.status || 500,
+        ok: false,
+        message: error.message || "Lỗi hệ thống",
+      };
+    }
+  },
+
+  getCustomerByDate: async (startDate, endDate) => {
+    try {
       const start = new Date(startDate);
       const end = new Date(endDate);
       end.setHours(23, 59, 59, 999);
 
       const users = await User.find({
         createdAt: { $gte: start, $lte: end },
-        role: { $in: [role] }, // role là một mảng nên cần dùng $in
+        role: "customer", // role là một mảng nên cần dùng $in
       }).sort({ createdAt: -1 }); // Sắp xếp theo thời gian tạo
 
       const usersQuantity = users.length;
@@ -99,7 +117,34 @@ module.exports = {
         ok: true,
         message: "Lấy danh sách người dùng thành công",
         quantity: usersQuantity,
-        data: users,
+      };
+    } catch (error) {
+      return {
+        status: error.status || 500,
+        ok: false,
+        message: error.message || "Lỗi hệ thống",
+      };
+    }
+  },
+
+  getStaffByDate: async (startDate, endDate) => {
+    try {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+
+      const users = await User.find({
+        createdAt: { $gte: start, $lte: end },
+        role: "staff",
+      }).sort({ createdAt: -1 }); // Sắp xếp theo thời gian tạo
+
+      const usersQuantity = users.length;
+
+      return {
+        status: 200,
+        ok: true,
+        message: "Lấy danh sách người dùng thành công",
+        quantity: usersQuantity,
       };
     } catch (error) {
       return {
@@ -129,7 +174,6 @@ module.exports = {
         ok: true,
         message: "Lấy danh sách người dùng thành công",
         quantity: usersQuantity,
-        data: users,
       };
     } catch (error) {
       return {

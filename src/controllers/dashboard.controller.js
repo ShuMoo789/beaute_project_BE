@@ -54,9 +54,9 @@ const dashboardController = {
       });
     }
   },
-  getAccountByRoleByDate: async (req, res) => {
+  getOrderIsPaidByDate: async (req, res) => {
     try {
-      const { startDate, endDate, role} = req.query;
+      const { startDate, endDate, isPaid} = req.query;
 
       if (!startDate || !endDate) {
         return res.status(400).json({
@@ -65,14 +65,56 @@ const dashboardController = {
         });
       }
 
-      if (!role) {
+      if (!isPaid) {
         return res.status(400).json({
           ok: false,
-          message: "vui long cung cấp vai trò",
+          message: "Không xác định trạng thái đơn hàng",
         });
       }
 
-      const result = await DashboardService.getAccountByRoleByDate(startDate, endDate, role);
+      const result = await DashboardService.getOrderIsPaidByDate(startDate, endDate, isPaid);
+
+      return res.status(200).json(result);
+    } catch (error) {
+      return res.status(error.status || 500).json({
+        ok: false,
+        message: error.message || "Lỗi hệ thống",
+      });
+    }
+  },
+  getCustomerByDate: async (req, res) => {
+    try {
+      const { startDate, endDate} = req.query;
+
+      if (!startDate || !endDate) {
+        return res.status(400).json({
+          ok: false,
+          message: "Vui lòng cung cấp startDate và endDate",
+        });
+      }
+
+      const result = await DashboardService.getCustomerByDate(startDate, endDate);
+
+      return res.status(200).json(result);
+    } catch (error) {
+      return res.status(error.status || 500).json({
+        ok: false,
+        message: error.message || "Lỗi hệ thống",
+      });
+    }
+  },
+  getStaffByDate: async (req, res) => {
+    try {
+      const { startDate, endDate} = req.query;
+
+      if (!startDate || !endDate) {
+        return res.status(400).json({
+          ok: false,
+          message: "Vui lòng cung cấp startDate và endDate",
+        });
+      }
+
+      const result = await DashboardService.getStaffByDate(startDate, endDate);
 
       return res.status(200).json(result);
     } catch (error) {
