@@ -102,5 +102,48 @@ module.exports = {
       });
     }
   },
-  
+
+  getCustomer: async (req, res) => {
+    try {
+      const users = await authServices.getCustomer();
+      return res.status(200).json({
+        ok: true,
+        users,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        ok: false,
+        message: error.message || "Lỗi hệ thống",
+      });
+    }
+  },
+  getStaff: async (req, res) => {
+    try {
+      const users = await authServices.getStaff();
+      return res.status(200).json({
+        ok: true,
+        users,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        ok: false,
+        message: error.message || "Lỗi hệ thống",
+      });
+    }
+  },
+  banUser: async (req, res) => {
+    try {
+      const { customerId } = req.body;
+      const user = await authServices.banUser(customerId);
+      return res.status(200).json({
+        ok: true,
+        user,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        ok: false,
+        message: error.message || "Lỗi hệ thống",
+      });
+    }
+  },
 };
