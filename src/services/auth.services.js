@@ -58,7 +58,7 @@ module.exports = {
           phone,
           email,
           role,
-          avatar,
+          image,
           skinType,
         } = formData;
 
@@ -94,7 +94,7 @@ module.exports = {
           name: name || "",
           phone: phone || "",
           email: email || "",
-          avatar: avatar || "",
+          image: image || "",
           skinType: skinType || null,
           role: userRole.length > 0 ? userRole : ["customer"],
         });
@@ -109,7 +109,7 @@ module.exports = {
             name: newUser.name,
             phone: newUser.phone,
             email: newUser.email,
-            avatar: newUser.avatar,
+            image: newUser.image,
             skinType: newUser.skinType,
             role: newUser.role,
           },
@@ -139,7 +139,7 @@ module.exports = {
       }
     }),
 
-  updateById: async (id, name, phone, email, avatar) => {
+  updateById: async (id, name, phone, email, image) => {
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) {
         return Promise.reject({
@@ -158,7 +158,7 @@ module.exports = {
 
       const updatedUser = await User.findByIdAndUpdate(
         id,
-        { name, phone, email, avatar },
+        { name, phone, email, image },
         {
           new: true,
           runValidators: true,

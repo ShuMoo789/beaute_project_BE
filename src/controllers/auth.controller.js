@@ -80,11 +80,11 @@ module.exports = {
       const bearerToken = req.headers.authorization;
       const token = bearerToken.split(" ")[1];
       const customerId = jwtDecode(token).id;
-      const { name, phone, email, avatar } = req.body;
+      const { name, phone, email, image } = req.body;
 
       const updatedUser = await userModel.findByIdAndUpdate(
         customerId,
-        { name, phone, email, avatar },
+        { name, phone, email, image },
         {
           new: true,
           runValidators: true,

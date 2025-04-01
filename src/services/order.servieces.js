@@ -126,7 +126,7 @@ module.exports = {
       // Get paginated orders
       const orders = await orderModel
         .find()
-        .populate("customerId", "-avatar")
+        .populate("customerId", "-image")
         .skip(skip)
         .limit(pageSize);
 
@@ -395,7 +395,7 @@ module.exports = {
     try {
       const orders = await orderModel
         .find({ status })
-        .populate("customerId", "-avatar");
+        .populate("customerId", "-image");
       // Nếu không có đơn hàng nào
       if (!orders.length) {
         return {

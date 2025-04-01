@@ -21,7 +21,7 @@ const userSchema = new Schema(
     email: {
       type: String,
     },
-    avatar: {
+    image: {
       type: String,
     },
     role: {
