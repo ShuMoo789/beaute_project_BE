@@ -36,7 +36,7 @@ module.exports = {
   },
   getAllUser: async (req, res) => {
     try {
-      const users = await userModel.find();
+      const users = await authServices.getAllUser();
       return res.status(200).json({
         ok: true,
         users,
@@ -75,43 +75,16 @@ module.exports = {
       });
     }
   },
-  getUserInfor: async (req, res) => {
-    try {
-      const bearerToken = req.headers.authorization;
-      const token = bearerToken.split(" ")[1];
-      const customerId = jwtDecode(token).id;
-      const user = await userModel
-        .findById(customerId)
-        .populate("skinType")
-        .select("-password");
-      if (!user) {
-        return res.status(404).json({
-          ok: false,
-          message: "Không tìm thấy Routine",
-        });
-      }
-
-      return res.status(200).json({
-        ok: true,
-        user,
-      });
-    } catch (error) {
-      return res.status(500).json({
-        ok: false,
-        message: error.message || "Lỗi hệ thống",
-      });
-    }
-  },
   updateById: async (req, res) => {
     try {
       const bearerToken = req.headers.authorization;
       const token = bearerToken.split(" ")[1];
       const customerId = jwtDecode(token).id;
-      const { name, phone, email, avatar } = req.body;
+      const { name, phone, email, image } = req.body;
 
       const updatedUser = await userModel.findByIdAndUpdate(
         customerId,
-        { name, phone, email, avatar },
+        { name, phone, email, image },
         {
           new: true,
           runValidators: true,
@@ -129,4 +102,5 @@ module.exports = {
       });
     }
   },
+  
 };

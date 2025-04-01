@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const User = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
@@ -6,7 +7,9 @@ module.exports = {
   login: (formData) =>
     new Promise(async (resolve, reject) => {
       try {
-        const user = await User.findOne({ username: formData.username }).populate('skinType');
+        const user = await User.findOne({
+          username: formData.username,
+        }).populate("skinType");
 
         if (!user) {
           return reject({
@@ -55,7 +58,7 @@ module.exports = {
           phone,
           email,
           role,
-          avatar,
+          image,
           skinType,
         } = formData;
 
@@ -91,7 +94,7 @@ module.exports = {
           name: name || "",
           phone: phone || "",
           email: email || "",
-          avatar: avatar || "",
+          image: image || "",
           skinType: skinType || null,
           role: userRole.length > 0 ? userRole : ["customer"],
         });
@@ -106,7 +109,7 @@ module.exports = {
             name: newUser.name,
             phone: newUser.phone,
             email: newUser.email,
-            avatar: newUser.avatar,
+            image: newUser.image,
             skinType: newUser.skinType,
             role: newUser.role,
           },
@@ -136,38 +139,7 @@ module.exports = {
       }
     }),
 
-  getById: (id) =>
-    new Promise(async (resolve, reject) => {
-      try {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-          return reject({
-            message: "ID không hợp lệ",
-            status: 400,
-          });
-        }
-        console.log(user)
-        const user = await User.findById(id).populate("skinType").select("-password");
-        if (!user) {
-          return reject({
-            message: "Không tìm thấy người dùng",
-            status: 404,
-          });
-        }
-
-        resolve({
-          ok: true,
-          status: 200,
-          user,
-        });
-      } catch (error) {
-        reject({
-          message: error?.message || "Lỗi hệ thống",
-          status: 500,
-        });
-      }
-    }),
-
-  updateById: async (id, name, phone, email, avatar) => {
+  updateById: async (id, name, phone, email, image) => {
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) {
         return Promise.reject({
@@ -186,7 +158,7 @@ module.exports = {
 
       const updatedUser = await User.findByIdAndUpdate(
         id,
-        { name, phone, email, avatar },
+        { name, phone, email, image },
         {
           new: true,
           runValidators: true,
@@ -207,4 +179,5 @@ module.exports = {
       });
     }
   },
+  
 };
