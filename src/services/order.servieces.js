@@ -111,44 +111,20 @@ module.exports = {
   },
 
   // Lấy thông tin đơn hàng
-  getAllOrder: async (page = 1, pageSize = 10) => {
+  getAllOrder: async () => {
     try {
-      // Convert page & pageSize to numbers
-      page = parseInt(page);
-      pageSize = parseInt(pageSize);
-
-      // Calculate skip value
-      const skip = (page - 1) * pageSize;
-
-      // Get total count of orders
-      const totalOrders = await orderModel.countDocuments();
-
-      // Get paginated orders
-      const orders = await orderModel
-        .find()
-        .populate("customerId", "-image")
-        .skip(skip)
-        .limit(pageSize);
-
+      const orders = await orderModel.find().populate("customerId", "-avatar");
       return {
         status: 200,
         ok: true,
         message: "Lấy danh sách đơn hàng thành công",
-        data: {
-          orders,
-          pagination: {
-            totalItems: totalOrders,
-            currentPage: page,
-            pageSize: pageSize,
-            totalPages: Math.ceil(totalOrders / pageSize)
-          }
-        }
+        data: orders,
       };
     } catch (error) {
       return Promise.reject({
         status: error.status || 500,
         ok: false,
-        message: error.message || "Lỗi hệ thống khi lấy đơn hàng!"
+        message: error.message || "Lỗi hệ thống khi lấy đơn hàng!",
       });
     }
   },
@@ -309,7 +285,7 @@ module.exports = {
   },
 
   // Lấy thông tin đơn hàng theo trạng thái
-  getOrderByStatus: async (customerId, status = null, isPaid = null, page = 1, pageSize = 10) => {
+  getOrderByStatus: async (customerId, status = null) => {
     try {
       // Kiểm tra ObjectId hợp lệ
       if (!mongoose.Types.ObjectId.isValid(customerId)) {
@@ -326,67 +302,43 @@ module.exports = {
         throw error;
       }
 
-      // Convert pagination params to numbers
-      page = parseInt(page);
-      pageSize = parseInt(pageSize);
-      const skip = (page - 1) * pageSize;
-
-      // Build query
+      // Tìm đơn hàng theo customerId và status
       const query = { customerId };
       if (status) {
         query.status = status;
       }
-      if (isPaid !== null) {
-        query.isPaid = isPaid;
-      }
+      const orders = await orderModel.find(query).lean();
 
-      // Get total count for pagination
-      const totalOrders = await orderModel.countDocuments(query);
-
-      // Get paginated orders
-      const orders = await orderModel
-        .find(query)
-        .skip(skip)
-        .limit(pageSize)
-        .lean();
-
-      // If no orders found
+      // Nếu không có đơn hàng nào
       if (!orders.length) {
         return {
           ok: true,
           status: 200,
-          message: `Không tìm thấy đơn hàng có trạng thái trên với trạng thái thanh toán ${query.isPaid}`,
-          data: {
-            orders: [],
-            pagination: {
-              totalItems: 0,
-              currentPage: page,
-              pageSize: pageSize,
-              totalPages: 0
-            }
-          }
+          message: "Không tìm thấy đơn hàng có trạng thái trên",
         };
       }
+
+      // // Kiểm tra xem có đơn hàng nào với status tương ứng không
+      // const orderExists = orders.findIndex((order) => order.status === status);
+      // if (orderExists === -1) {
+      //   return {
+      //     ok: true,
+      //     status: 200,
+      //     message: "Không tìm thấy đơn hàng có trạng thái trên",
+      //   };
+      // }
 
       return {
         ok: true,
         status: 200,
         message: "Lấy đơn hàng theo trạng thái thành công",
-        data: {
-          orders,
-          pagination: {
-            totalItems: totalOrders,
-            currentPage: page,
-            pageSize: pageSize,
-            totalPages: Math.ceil(totalOrders / pageSize)
-          }
-        }
+        data: orders,
       };
     } catch (error) {
       return Promise.reject({
         status: error.status || 500,
         ok: false,
-        message: error.message || "Lỗi hệ thống khi lấy đơn hàng!"
+        message: error.message || "Lỗi hệ thống khi lấy đơn hàng!",
       });
     }
   },
@@ -422,11 +374,10 @@ module.exports = {
 
   getByRole: async (req, res) => {
     try {
-
       const { role } = req.body;
 
       const users = await authServices.getByRole(role);
-      
+
       return res.status(200).json({
         ok: true,
         message: "Cập nhật Routine thành công",
