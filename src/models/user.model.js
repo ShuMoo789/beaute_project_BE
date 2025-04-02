@@ -33,6 +33,10 @@ const userSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "SkinType", // Reference to Skin table
     },
+    isBan: {
+      type: Boolean,
+      default: true,
+    },
   },
   {
     versionKey: false,

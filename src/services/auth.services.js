@@ -175,9 +175,76 @@ module.exports = {
       return Promise.reject({
         status: error.status || 500,
         ok: false,
+        message: error.message || "Lỗi hệ thống!",
+      });
+    }
+  },
+
+  getCustomer: async () => {
+    try {
+      const customerUsers = await User.find({ role: "customer" });
+      return {
+        status: 200,
+        ok: true,
+        message: "Tổng số khách hàng từ trước đến nay",
+        customerUsers,
+      };
+    } catch (error) {
+      return Promise.reject({
+        status: error.status || 500,
+        ok: false,
         message: error.message || "Lỗi hệ thống khi lấy đơn hàng!",
       });
     }
   },
+  getStaff: async () => {
+    try {
+      const staffUser = await User.find({ role: "staff" });
+      return {
+        status: 200,
+        ok: true,
+        message: "Tổng số nhân viên từ trước đến nay",
+        staffUser,
+      };
+    } catch (error) {
+      return Promise.reject({
+        status: error.status || 500,
+        ok: false,
+        message: error.message || "Lỗi hệ thống khi lấy đơn hàng!",
+      });
+    }
+  },
+
+  banUser: async (userId) => {
+    try {
+      // Tìm người dùng theo ID và cập nhật giá trị isBan (false -> true hoặc true -> false)
+      const banUser = await User.findOneAndUpdate(
+        { _id: userId }, // Tìm người dùng theo ID
+        [{ $set: { isBan: { $eq: [ "$isBan", false ] } } }], // Nếu isBan là false, set thành true; nếu true, set thành false
+        { new: true } // Trả về đối tượng người dùng đã được cập nhật
+      );
   
+      if (!banUser) {
+        // Nếu không tìm thấy người dùng theo ID
+        return Promise.reject({
+          status: 404,
+          ok: false,
+          message: "Không tìm thấy người dùng",
+        });
+      }
+  
+      return {
+        status: 200,
+        ok: true,
+        message: `Cập nhật trạng thái cấm người dùng ${banUser.isBan ? 'thành công' : 'thất bại'}`,
+        user: banUser,
+      };
+    } catch (error) {
+      return Promise.reject({
+        status: error.status || 500,
+        ok: false,
+        message: error.message || "Lỗi hệ thống khi thay đổi trạng thái người dùng!",
+      });
+    }
+  },  
 };

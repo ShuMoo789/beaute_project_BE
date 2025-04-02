@@ -8,4 +8,8 @@ authRouter.get("/getAllUser", authController.getAllUser);
 authRouter.get("/getUserById", authController.getUserById);
 authRouter.put("/updateUser", authController.updateById);
 
+authRouter.get("/get-customer", authController.getCustomer);
+authRouter.get("/get-staff", authController.getStaff);
+authRouter.put("/ban-user", authController.banUser);
+
 module.exports = authRouter;
