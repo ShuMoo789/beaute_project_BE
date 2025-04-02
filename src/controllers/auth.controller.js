@@ -60,7 +60,7 @@ module.exports = {
       if (!user) {
         return res.status(404).json({
           ok: false,
-          message: "Không tìm thấy Routine",
+          message: "Không tìm thấy Người dùng",
         });
       }
 
@@ -92,7 +92,7 @@ module.exports = {
       );
       return res.status(200).json({
         ok: true,
-        message: "Cập nhật Routine thành công",
+        message: "Cập nhật người dùng thành công",
         user: updatedUser,
       });
     } catch (error) {
