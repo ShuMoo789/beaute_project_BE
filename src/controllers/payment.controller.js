@@ -18,7 +18,7 @@ module.exports = {
     const { amount, orderId } = req.body;
     const items = [{}];
     const embed_data = {
-      redirectUrl: "http://localhost:5173/", //fe
+      redirectUrl: FE_REDIRECT_URL, //fe
       // redirectUrl: FE_REDIRECT_URL,
     };
     const transID = Math.floor(Math.random() * 1000000);
