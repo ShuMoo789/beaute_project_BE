@@ -18,6 +18,13 @@ module.exports = {
           });
         }
 
+        if (user.isBan) {
+          return reject({
+            message: "Tài khoản của bạn đã bị ban. Vui lòng liên hệ staff để mở khóa.",
+            status: 403,
+          });
+        }
+        
         const isMatch = bcrypt.compareSync(formData.password, user.password);
         if (!isMatch) {
           return reject({
