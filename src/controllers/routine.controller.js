@@ -4,7 +4,7 @@ const routineService = require("../services/routine.service");
 const routineController = {
   create: async (req, res) => {
     try {
-      const { routineName, routineDescription, skinType, steps } = req.body;
+      const { routineName, routineDescription, skinType, steps, active } = req.body;
 
       if (!routineName || !routineDescription || !skinType) {
         return res.status(400).json({
@@ -32,6 +32,7 @@ const routineController = {
         routineDescription,
         skinType,
         steps: steps || [],
+        active: active
       });
 
       return res.status(201).json({
