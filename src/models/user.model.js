@@ -35,7 +35,7 @@ const userSchema = new Schema(
     },
     isBan: {
       type: Boolean,
-      default: true,
+      default: false,
     },
   },
   {
